@@ -8,7 +8,8 @@ const O = require('./orders');
 
 function createApp() {
   const app = express();
-  app.set('trust proxy', process.env.TRUST_PROXY ? Number(process.env.TRUST_PROXY) || process.env.TRUST_PROXY : false);
+  // Behind Railway's / Caddy's proxy: trust X-Forwarded-* so https and client IPs are seen correctly
+  app.set('trust proxy', process.env.TRUST_PROXY ? Number(process.env.TRUST_PROXY) || process.env.TRUST_PROXY : process.env.RAILWAY_ENVIRONMENT ? 1 : false);
   app.disable('x-powered-by');
   app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -162,6 +163,7 @@ if (require.main === module) {
     console.log(`Pixberry ERP running on http://localhost:${port}`);
     console.log(`  Staff / admin:   http://localhost:${port}/admin`);
     console.log(`  Kitchen display: http://localhost:${port}/kds`);
+    console.log(`  Database: ${require('./db').DB_FILE}${process.env.PUBLIC_URL ? ` · public URL: ${process.env.PUBLIC_URL}` : ' · PUBLIC_URL not set'}`);
     if (pw) console.log(`\n  First run — created user "admin" with password: ${pw}\n  (set ADMIN_PASSWORD to choose it; change it after signing in)\n`);
   });
   startJobs();

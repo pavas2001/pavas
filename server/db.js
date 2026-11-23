@@ -4,7 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
 
-const DATA_DIR = process.env.PIXBERRY_DATA_DIR || path.join(__dirname, '..', 'data');
+// On Railway, use the attached volume automatically (RAILWAY_VOLUME_MOUNT_PATH) so data survives redeploys.
+const DATA_DIR = process.env.PIXBERRY_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(__dirname, '..', 'data');
 const DB_FILE = process.env.PIXBERRY_DB || path.join(DATA_DIR, 'pixberry.db');
 
 if (DB_FILE !== ':memory:') fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });

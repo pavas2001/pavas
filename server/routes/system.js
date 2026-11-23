@@ -9,7 +9,7 @@ const A = require('../auth');
 const { crud, pick } = require('../crud');
 
 const r = express.Router();
-const BACKUP_DIR = process.env.PIXBERRY_BACKUP_DIR || path.join(DATA_DIR, '..', 'backups');
+const BACKUP_DIR = process.env.PIXBERRY_BACKUP_DIR || (process.env.PIXBERRY_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH ? path.join(DATA_DIR, 'backups') : path.join(DATA_DIR, '..', 'backups'));
 
 // ---------- Auth ----------
 r.post('/auth/login', (req, res) => {
