@@ -83,7 +83,7 @@ r.put('/settings/:key', A.requirePerm('settings.manage'), (req, res) => {
   }
   if (key === 'tax' && value) { value.rate = Number(value.rate) || 0; if (!['inclusive', 'exclusive'].includes(value.mode)) value.mode = 'exclusive'; }
   if (key === 'menu_page' && value) {
-    if (value.accent && !/^#[0-9a-fA-F]{6}$/.test(value.accent)) throw U.httpError(400, 'Accent colour must look like #f5a30b');
+    if (value.accent && !/^#[0-9a-fA-F]{6}$/.test(value.accent)) throw U.httpError(400, 'Accent colour must look like #a8d672');
     for (const k of ['title', 'welcome', 'tagline', 'instagram']) value[k] = String(value[k] ?? '').slice(0, 200);
   }
   if (key === 'timezone') { try { new Intl.DateTimeFormat('en', { timeZone: value }); } catch { throw U.httpError(400, 'Unknown timezone'); } }

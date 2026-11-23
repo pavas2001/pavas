@@ -1,14 +1,15 @@
 /* Customer QR menu: a deliberately dark café look (one theme for every guest).
    Layout: dark top bar → hero (MENU, logo card, welcome, tagline, table + location) → sticky category chips → big category sections. */
 :root, :root[data-theme="light"], :root[data-theme="dark"] {
-  --bg: #262b38; --surface: #2f3544; --surface-2: #363d4e; --border: #414a5e; --border-strong: #55607a;
-  --text: #f4f5f8; --text-2: #b9bfcc; --text-3: #8d95a6;
-  --brand: var(--accent, #f5a30b); --brand-ink: #1b1608; --brand-soft: rgba(245, 163, 11, .16); --brand-strong: #ffb52e;
-  --bar: #1d1d20;
-  --ok: #5dd39a; --ok-soft: rgba(93, 211, 154, .14); --warn: #f6c35b; --warn-soft: rgba(246, 195, 91, .14);
-  --bad: #ff8a80; --bad-soft: rgba(255, 138, 128, .14); --info: #8fb8ff; --info-soft: rgba(143, 184, 255, .14);
-  --veg: #5dd39a; --nonveg: #ff8a80; --egg: #f6c35b;
-  --shadow: 0 2px 10px rgba(0, 0, 0, .35);
+  /* Violet grounds + pistachio-green accent */
+  --bg: #2b1f47; --surface: #362858; --surface-2: #413166; --border: #4f3d78; --border-strong: #6a56a0;
+  --text: #f6f3fc; --text-2: #c9bfe0; --text-3: #9e92bd;
+  --brand: var(--accent, #a8d672); --brand-ink: #1a2a0c; --brand-soft: rgba(168, 214, 114, .16); --brand-strong: #bde38f;
+  --bar: #1e1535;
+  --ok: #a8d672; --ok-soft: rgba(168, 214, 114, .15); --warn: #f6c35b; --warn-soft: rgba(246, 195, 91, .14);
+  --bad: #ff8fa3; --bad-soft: rgba(255, 143, 163, .15); --info: #b9a6ff; --info-soft: rgba(185, 166, 255, .16);
+  --veg: #a8d672; --nonveg: #ff8fa3; --egg: #f6c35b;
+  --shadow: 0 2px 10px rgba(10, 4, 24, .45);
   --display: "Roboto", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: dark;
 }
@@ -17,10 +18,10 @@ body { background: var(--bg); color: var(--text); padding-bottom: 96px; font-fam
 .wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
 
 /* Top bar */
-.bar { background: var(--bar); border-bottom: 1px solid #000; position: sticky; top: 0; z-index: 15; }
+.bar { background: var(--bar); border-bottom: 1px solid #120c22; position: sticky; top: 0; z-index: 15; }
 .bar .wrap { display: flex; align-items: center; gap: 12px; min-height: 64px; }
 .bar .name { flex: 1; min-width: 0; font-size: 21px; font-weight: 500; letter-spacing: .02em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.round { position: relative; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #8b90a0; background: #2b2f3b; color: #fff; display: grid; place-items: center; cursor: pointer; flex: none; }
+.round { position: relative; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #8a76c4; background: #2e2250; color: #fff; display: grid; place-items: center; cursor: pointer; flex: none; }
 .round svg { width: 21px; height: 21px; }
 .round:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .round .count { position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--brand); color: var(--brand-ink); font: 700 12px/20px var(--display); text-align: center; }
@@ -30,7 +31,7 @@ body { background: var(--bg); color: var(--text); padding-bottom: 96px; font-fam
 .hero .title { margin: 0; font-size: clamp(54px, 15vw, 76px); font-weight: 300; letter-spacing: .08em; line-height: 1; text-transform: uppercase; }
 .logo-card { width: min(260px, 64vw); aspect-ratio: 1.2; background: #fff; border-radius: 34px; display: grid; place-items: center; overflow: hidden; padding: 10px; }
 .logo-card img { max-width: 100%; max-height: 100%; object-fit: contain; }
-.logo-card .initials { font: 700 64px var(--display); color: #1d1d20; letter-spacing: .02em; }
+.logo-card .initials { font: 700 64px var(--display); color: #4b2a8a; letter-spacing: .02em; }
 .welcome { margin: 6px 0 0; color: var(--brand); font-size: clamp(28px, 7.8vw, 38px); font-weight: 700; letter-spacing: .09em; line-height: 1.18; text-wrap: balance; }
 .tagline { margin: 0; color: var(--text-2); font-size: 17px; line-height: 1.55; max-width: 34ch; }
 .ig { color: var(--text-3); font-size: 14px; }
@@ -62,7 +63,7 @@ body { background: var(--bg); color: var(--text); padding-bottom: 96px; font-fam
 
 /* Category sections */
 .sec { padding-top: 26px; scroll-margin-top: 140px; }
-.sec h2 { font-size: clamp(40px, 11vw, 56px); font-weight: 400; text-transform: uppercase; letter-spacing: .01em; margin: 0; padding-bottom: 16px; border-bottom: 1.5px solid #c9ced8; line-height: 1.05; }
+.sec h2 { font-size: clamp(40px, 11vw, 56px); font-weight: 400; text-transform: uppercase; letter-spacing: .01em; margin: 0; padding-bottom: 16px; border-bottom: 1.5px solid var(--brand); line-height: 1.05; }
 .sec .sd { font-size: 14px; color: var(--text-3); margin-top: 10px; }
 .item { display: flex; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--border); }
 .item .info { flex: 1; min-width: 0; }
@@ -115,5 +116,5 @@ body { background: var(--bg); color: var(--text); padding-bottom: 96px; font-fam
 .fab { display: flex; gap: 8px; margin: 14px 0; flex-wrap: wrap; }
 .fab .btn { flex: 1; }
 .chip { background: var(--surface-2); color: var(--text-2); }
-.toast { background: #f4f5f8; color: #1d1d20; }
+.toast { background: #f6f3fc; color: #2b1f47; }
 .toast.bad { background: var(--bad); color: #1d1d20; } .toast.ok { background: var(--ok); color: #10241a; }
