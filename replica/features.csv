@@ -1,0 +1,66 @@
+feature,area,priority,original,clone,notes
+Owner sign up with email or Google,onboarding,must,yes,no,S06
+Staff sign in with email/password or Google,onboarding,must,yes,no,S05
+Forgot password by email,onboarding,must,yes,no,S06b
+Venue setup (name address GSTIN tax mode),onboarding,must,yes,no,S07 inferred
+Menu categories and items with price and veg mark,menu,must,yes,no,S11
+Mark an item sold out,menu,must,yes,no,"features: low-stock & sold-out alerts"
+Create tables and a unique QR per table,tables,must,yes,no,S10
+Printable QR sheet for tables,tables,must,yes,no,S10
+Guest menu opens in browser from QR with no app,guest ordering,must,yes,no,S01
+Menu search and category tabs,guest ordering,must,yes,no,S01
+Cart with qty stepper and sticky total bar,guest ordering,must,yes,no,S01
+Place order without an account,guest ordering,must,yes,no,S03
+Guest sees live order status,guest ordering,must,yes,no,S03 inferred
+Per-item note (e.g. less spicy),guest ordering,must,yes,no,KDS ticket notes
+Live kitchen display with NEW PREPARING READY,kitchen,must,yes,no,S08
+New order alert with accept in one tap,kitchen,must,yes,no,S08
+One consolidated bill per table across rounds,billing,must,yes,no,S04
+GST invoice with CGST/SGST (inclusive or exclusive),billing,must,yes,no,S04
+Pay at counter (cash) and mark paid,billing,must,yes,no,Free plan
+Role-based staff accounts (owner manager cashier waiter kitchen),staff,must,yes,no,S15
+Bill by email,billing,must,yes,no,Free plan: 50/mo
+Online UPI/card payments via venue's own Razorpay account,payments,should,yes,no,S04 Starter
+Split the bill,billing,should,yes,no,S04
+WhatsApp bill with PDF download,billing,should,yes,no,S04b Starter
+WhatsApp OTP login for guests,guest ordering,should,yes,no,Starter
+Item variants modifiers and combos,menu,should,yes,no,S02
+Multi-language menus (Hindi Kannada Tamil etc),menu,should,yes,no,8 Indian languages
+Waiter mobile order-taking view,front of house,should,yes,no,S13
+Floor view with table status,front of house,should,yes,no,S09
+Table and zone management,tables,should,yes,no,
+Orders list with filters,orders,should,yes,no,S12
+Refunds with manager approval,billing,should,yes,no,S14 Starter
+Analytics and CSV export,reports,should,yes,no,S16 Starter
+Coupons,promotions,should,yes,no,Starter
+Plan limits and usage metering (tables messages),platform,should,yes,no,pricing page
+Light and dark theme,platform,should,yes,no,theme toggle on S05
+Custom subdomain per venue,platform,should,yes,no,about page
+KOT thermal printing with bar and kitchen stations,kitchen,could,yes,no,Pro
+Bar KDS,kitchen,could,yes,no,Pro
+Drag-and-drop floor plan editor,front of house,could,yes,no,
+Reservations with slot capacity,front of house,could,yes,no,Starter
+Waitlist,front of house,could,yes,no,
+Customer-facing order/bill display screen,front of house,could,yes,no,
+Self-service kiosk mode,guest ordering,could,yes,no,
+Pickup and home delivery ordering,guest ordering,could,yes,no,
+Delivery rider assignment and tracking,staff,could,yes,no,
+Happy-hour pricing,promotions,could,yes,no,Starter
+Loyalty points,promotions,could,yes,no,Starter
+Cash register shifts with denomination count,billing,could,yes,no,
+Multiple billing counters,billing,could,yes,no,
+Hotel rooms room-folio billing and banquets,hotels,could,yes,no,Pro
+Inventory with recipe-based stock deduction,inventory,could,yes,no,Pro
+Suppliers and purchase orders,inventory,could,yes,no,
+Inter-outlet stock transfer,inventory,could,yes,no,
+Staff attendance with geofenced clock-in,staff,could,yes,no,Pro
+Operating expense tracking,reports,could,yes,no,
+Audit log,platform,could,yes,no,Pro
+Guest Wi-Fi details on menu,guest ordering,could,yes,no,
+Custom domain and brand colour,platform,could,yes,no,
+Multi-property console,platform,could,yes,no,Enterprise
+Integrations and webhooks,platform,could,yes,no,Enterprise
+SSO,platform,could,yes,no,Enterprise
+Scan2Order name logo copy and demo content,brand,skip,yes,skip,belongs to Scan2Order; replica-brand makes your own
+Powered by Scan2Order branding and customer base,brand,skip,yes,skip,their network and reputation are not part of the product
+WhatsApp/Meta and Razorpay pricing and accounts,integrations,skip,yes,skip,third parties: integrate via their official APIs with your own accounts
