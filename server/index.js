@@ -71,6 +71,7 @@ function createApp() {
   app.use(express.static(pub, { index: false, maxAge: '1h' }));
   app.get('/order/:token', (_req, res) => res.sendFile(path.join(pub, 'order', 'index.html')));
   app.get(['/admin', '/admin/'], (_req, res) => res.sendFile(path.join(pub, 'admin', 'index.html')));
+  app.get(['/preview', '/preview/'], (_req, res) => res.sendFile(path.join(pub, 'preview', 'index.html')));
   app.get(['/kds', '/kds/'], (_req, res) => res.sendFile(path.join(pub, 'kds', 'index.html')));
   app.get('/', (_req, res) => res.redirect('/admin'));
 

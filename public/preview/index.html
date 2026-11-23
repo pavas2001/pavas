@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+</head><body>
+<title>Pixberry QR Ordering Preview</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: one narrow phone-width column (the guest's view) with a café-settings panel and a local order log; preview notice pinned on top. */
+:root {
+  --bg: #f6f4f8; --surface: #ffffff; --surface-2: #efebf3; --line: #ddd6e4;
+  --fg: #1e1a24; --muted: #625a6c; --brand: #6b2fa0; --brand-ink: #ffffff; --brand-soft: #efe4f7;
+  --ok: #1d7a46; --ok-soft: #e2f3e9; --bad: #b3261e; --bad-soft: #fbe6e4; --warn: #8a5a00; --warn-soft: #fbf0d6;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141118; --surface: #1d1922; --surface-2: #27222e; --line: #383140;
+  --fg: #eeeaf2; --muted: #ada4b8; --brand: #c294ea; --brand-ink: #1b0f27; --brand-soft: #2f2339;
+  --ok: #6fd19a; --ok-soft: #16301f; --bad: #f2867e; --bad-soft: #3a1c1a; --warn: #efc067; --warn-soft: #362a12; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #141118; --surface: #1d1922; --surface-2: #27222e; --line: #383140;
+  --fg: #eeeaf2; --muted: #ada4b8; --brand: #c294ea; --brand-ink: #1b0f27; --brand-soft: #2f2339;
+  --ok: #6fd19a; --ok-soft: #16301f; --bad: #f2867e; --bad-soft: #3a1c1a; --warn: #efc067; --warn-soft: #362a12; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 48px; }
+.wrap { max-width: 560px; margin: 0 auto; display: grid; gap: 16px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; margin: 0; text-wrap: balance; }
+h1 { font-size: 24px; } h2 { font-size: 18px; } h3 { font-size: 15px; }
+p { margin: 0; }
+.notice { margin-top: 16px; background: var(--warn-soft); color: var(--warn); border-radius: var(--radius); padding: 12px 14px; font-size: 13.5px; display: grid; gap: 4px; }
+.notice b { font-size: 14px; }
+.tabs { display: flex; gap: 4px; background: var(--surface-2); border-radius: 999px; padding: 4px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.tabs button { flex: 1; border: 0; background: none; color: var(--muted); font: 600 14px var(--font-body); padding: 9px 8px; border-radius: 999px; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 12px; }
+.head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.sub { color: var(--muted); font-size: 13px; }
+.status { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; padding: 12px 14px; border-radius: 12px; font-size: 13.5px; }
+.status .dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 4px; background: currentColor; grid-row: span 2; }
+.status b { font-size: 14.5px; }
+.status.ok { background: var(--ok-soft); color: var(--ok); } .status.bad { background: var(--bad-soft); color: var(--bad); }
+.status.warn { background: var(--warn-soft); color: var(--warn); } .status.idle { background: var(--surface-2); color: var(--muted); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.btn { min-height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: 600 14px var(--font-body); cursor: pointer; }
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+.btn.block { width: 100%; min-height: 48px; font-size: 15px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn:focus-visible, input:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.item { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.item:first-of-type { border-top: 0; }
+.item .info { flex: 1; min-width: 0; }
+.item .nm { font-weight: 600; }
+.item .ds { color: var(--muted); font-size: 13px; }
+.price, .num { font-variant-numeric: tabular-nums; }
+.step { display: inline-flex; align-items: center; border: 1px solid var(--brand); border-radius: 10px; overflow: hidden; }
+.step button { width: 34px; height: 34px; border: 0; background: var(--brand-soft); color: var(--brand); font: 700 18px var(--font-body); cursor: pointer; }
+.step span { min-width: 28px; text-align: center; font-weight: 700; }
+.veg { width: 13px; height: 13px; border: 1.5px solid var(--ok); border-radius: 3px; display: inline-grid; place-items: center; vertical-align: -1px; margin-right: 4px; }
+.veg::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--ok); }
+.veg.egg { border-color: var(--warn); } .veg.egg::after { background: var(--warn); }
+.total { display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; border-top: 1px solid var(--line); padding-top: 10px; }
+label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: var(--muted); }
+input[type="text"], input[type="number"] { width: 100%; min-height: 40px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: 15px var(--font-body); }
+input[type="range"] { width: 100%; accent-color: var(--brand); }
+.check { display: flex; gap: 8px; align-items: center; color: var(--fg); font-weight: 500; font-size: 14px; }
+.check input { width: 18px; height: 18px; accent-color: var(--brand); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 420px) { .grid2 { grid-template-columns: 1fr; } }
+.hint { font-size: 12.5px; color: var(--muted); font-weight: 400; }
+.sim { border: 1px dashed var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 10px; }
+.sim .val { font-weight: 700; color: var(--fg); }
+.log { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.log th, .log td { text-align: left; padding: 8px 6px; border-top: 1px solid var(--line); vertical-align: top; }
+.log th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; border-top: 0; }
+.tbl { overflow-x: auto; }
+.chip { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.chip.ok { background: var(--ok-soft); color: var(--ok); } .chip.bad { background: var(--bad-soft); color: var(--bad); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 14px; max-width: calc(100vw - 32px); z-index: 20; }
+@media (prefers-reduced-motion: no-preference) { .status { transition: background .2s, color .2s; } }
+</style>
+
+<div class="wrap">
+  <div class="notice" role="note">
+    <b>Preview mode</b>
+    <span>Settings are stored in this browser only, and live order processing isn't connected: orders here are not sent to the kitchen or saved on a server.</span>
+    <span>In production, the Pixberry server must re-check the distance on every order, because a browser's location can be faked.</span>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-guest" aria-selected="true" data-tab="guest">Guest menu</button>
+    <button role="tab" id="tab-settings" aria-selected="false" data-tab="settings">Café location</button>
+    <button role="tab" id="tab-orders" aria-selected="false" data-tab="orders">Preview orders</button>
+  </div>
+
+  <!-- Guest view -->
+  <section id="view-guest" class="wrap" style="gap:16px">
+    <div class="card">
+      <div class="head"><h1 id="cafeName">Pixberry Café</h1><span class="sub">Table T3 · Dine-in</span></div>
+      <div id="status" class="status idle" role="status" aria-live="polite"><span class="dot"></span><b>Location not checked yet</b><span>Check your location to place an order.</span></div>
+      <div class="row">
+        <button class="btn" id="gpsBtn">Use my real location</button>
+        <span class="hint" id="gpsNote">Works when this page is opened from your own https site.</span>
+      </div>
+      <div class="sim">
+        <div class="head"><h3>Simulate the guest's position</h3><label class="check" for="simOn"><input type="checkbox" id="simOn" checked> Use simulator</label></div>
+        <label for="simDist">Distance from the café: <span class="val num" id="simDistVal">40 m</span>
+          <input type="range" id="simDist" min="0" max="2000" step="10" value="40"></label>
+        <label for="simAcc">GPS accuracy (±): <span class="val num" id="simAccVal">15 m</span>
+          <input type="range" id="simAcc" min="5" max="800" step="5" value="15"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Menu</h2>
+      <div id="menu"></div>
+    </div>
+
+    <div class="card" id="cartCard">
+      <h2>Your order</h2>
+      <div id="cart"></div>
+      <div class="total"><span>Total (incl. 5% GST)</span><span class="num" id="cartTotal">₹0</span></div>
+      <button class="btn primary block" id="placeBtn" disabled>Place order</button>
+      <p class="hint" id="placeHint">Add items to place an order.</p>
+    </div>
+  </section>
+
+  <!-- Settings -->
+  <section id="view-settings" class="card" hidden>
+    <div class="head"><h2>Café location &amp; ordering radius</h2><span class="sub">Saved in this browser</span></div>
+    <label for="sName">Café name<input type="text" id="sName"></label>
+    <div class="grid2">
+      <label for="sLat">Latitude<input type="number" id="sLat" step="any"></label>
+      <label for="sLng">Longitude<input type="number" id="sLng" step="any"></label>
+    </div>
+    <div class="row"><button class="btn" id="hereBtn">Set to my current location</button><span class="hint" id="hereNote"></span></div>
+    <label for="sRadius">Ordering radius (metres)<input type="number" id="sRadius" min="10" max="50000"><span class="hint">Typical: 50–150 m. Too small and guests on weak indoor GPS get blocked.</span></label>
+    <label class="check" for="sOn"><input type="checkbox" id="sOn"> Only accept orders within the radius</label>
+    <div class="grid2">
+      <label for="sTol">GPS error allowance (m)<input type="number" id="sTol" min="0" max="500"><span class="hint">Extra distance forgiven, up to the phone's reported accuracy.</span></label>
+      <label for="sMax">Reject fixes less precise than (m)<input type="number" id="sMax" min="20" max="10000"><span class="hint">Stops rough "approximate location" fixes.</span></label>
+    </div>
+    <div class="row"><button class="btn primary" id="saveBtn">Save settings</button><button class="btn" id="resetBtn">Restore example values</button></div>
+    <p class="hint">The example location is MG Road, Bengaluru. Replace it with your café's entrance.</p>
+  </section>
+
+  <!-- Orders -->
+  <section id="view-orders" class="card" hidden>
+    <div class="head"><h2>Preview orders</h2><button class="btn" id="clearBtn">Clear</button></div>
+    <p class="sub">Orders placed on this page, kept in this browser only. Nothing reaches a kitchen.</p>
+    <div class="tbl" id="orders"></div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const KEY = 'pixberry.preview.v1';
+  const EXAMPLE = { name: 'Pixberry Café', lat: 12.9716, lng: 77.5946, radius_m: 150, enabled: true, tolerance_m: 30, max_accuracy_m: 300 };
+  const MENU = [
+    { id: 1, name: 'Cappuccino', desc: 'Double shot, velvety milk foam', price: 160, diet: 'veg' },
+    { id: 2, name: 'South Indian filter coffee', desc: 'Chicory blend, brass tumbler', price: 90, diet: 'veg' },
+    { id: 3, name: 'Masala omelette toast', desc: 'Two eggs, onion, chilli, coriander', price: 149, diet: 'egg' },
+    { id: 4, name: 'Paneer tikka sandwich', desc: 'Grilled paneer, mint chutney, sourdough', price: 220, diet: 'veg' },
+    { id: 5, name: 'Walnut brownie', desc: 'Warm, with a scoop of vanilla', price: 140, diet: 'veg' },
+  ];
+
+  const load = () => { try { const v = JSON.parse(localStorage.getItem(KEY) || 'null'); return v || { settings: { ...EXAMPLE }, orders: [] }; } catch { return { settings: { ...EXAMPLE }, orders: [] }; } };
+  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage unavailable: settings last until the page closes */ } };
+  const state = load();
+  state.settings = { ...EXAMPLE, ...state.settings };
+  state.orders = Array.isArray(state.orders) ? state.orders : [];
+  const cart = new Map();
+  let lastFix = null; // { lat, lng, accuracy, source }
+
+  const rupees = n => '₹' + n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+  const toast = msg => { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.append(t); setTimeout(() => t.remove(), 3200); };
+
+  // Same rule as the Pixberry server (server/util.js › checkGeofence)
+  function distanceMeters(lat1, lng1, lat2, lng2) {
+    const R = 6371008.8, r = d => d * Math.PI / 180;
+    const a = Math.sin(r(lat2 - lat1) / 2) ** 2 + Math.cos(r(lat1)) * Math.cos(r(lat2)) * Math.sin(r(lng2 - lng1) / 2) ** 2;
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(a)));
+  }
+  function checkGeofence(s, loc) {
+    if (!s.enabled) return { allowed: true, code: 'disabled' };
+    if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) return { allowed: false, code: 'not_configured', reason: 'The café location has not been set. Open “Café location” to set it.' };
+    if (!loc) return { allowed: false, code: 'location_required', reason: 'Share your location (or use the simulator) to place an order.' };
+    if (loc.accuracy > s.max_accuracy_m) return { allowed: false, code: 'low_accuracy', reason: `Your location is too imprecise (±${Math.round(loc.accuracy)} m). The café only accepts fixes better than ±${s.max_accuracy_m} m.` };
+    const d = distanceMeters(loc.lat, loc.lng, s.lat, s.lng);
+    const allowed = d - Math.min(loc.accuracy || 0, s.tolerance_m) <= s.radius_m;
+    const far = d >= 1000 ? `${(d / 1000).toFixed(1)} km` : `${Math.round(d)} m`;
+    return { allowed, code: allowed ? 'inside' : 'outside', distance_m: Math.round(d), reason: allowed ? null : `You are about ${far} from the café. Orders can only be placed within ${s.radius_m} m.` };
+  }
+
+  function simFix() {
+    const d = Number($('simDist').value), acc = Number($('simAcc').value), s = state.settings;
+    const base = Number.isFinite(s.lat) ? s : EXAMPLE;
+    return { lat: base.lat + d / 111320, lng: base.lng, accuracy: acc, source: 'simulated' };
+  }
+  function currentFix() { return $('simOn').checked ? simFix() : lastFix; }
+
+  function renderStatus() {
+    const fix = currentFix(), g = checkGeofence(state.settings, fix), el = $('status');
+    let cls, title, text;
+    if (g.code === 'disabled') { cls = 'ok'; title = 'Distance check is off'; text = 'Any guest can order. Turn it on in “Café location”.'; }
+    else if (g.code === 'inside') { cls = 'ok'; title = "You're at the café: ordering is on"; text = `About ${g.distance_m} m from the café${fix.source === 'simulated' ? ' (simulated)' : ` (±${Math.round(fix.accuracy)} m GPS)`}.`; }
+    else if (g.code === 'low_accuracy') { cls = 'warn'; title = 'Location not precise enough'; text = g.reason; }
+    else if (g.code === 'location_required') { cls = 'idle'; title = 'Location not checked yet'; text = g.reason; }
+    else { cls = 'bad'; title = g.code === 'not_configured' ? 'Ordering is not set up' : 'Ordering is only available at the café'; text = g.reason + (g.code === 'outside' ? ' You can still browse the menu.' : ''); }
+    el.className = `status ${cls}`;
+    el.innerHTML = '<span class="dot"></span><b></b><span></span>';
+    el.querySelector('b').textContent = title; el.querySelector('span:last-child').textContent = text;
+    renderCart(g);
+  }
+
+  function renderMenu() {
+    $('menu').innerHTML = '';
+    for (const m of MENU) {
+      const row = document.createElement('div'); row.className = 'item';
+      const q = cart.get(m.id) || 0;
+      row.innerHTML = `<div class="info"><div class="nm"><span class="veg ${m.diet === 'egg' ? 'egg' : ''}" aria-hidden="true"></span></div><div class="ds"></div></div><span class="price num"></span>
+        <span class="step"><button aria-label="Remove one">−</button><span>${q}</span><button aria-label="Add one">+</button></span>`;
+      row.querySelector('.nm').append(m.name); row.querySelector('.ds').textContent = m.desc; row.querySelector('.price').textContent = rupees(m.price);
+      const [minus, plus] = row.querySelectorAll('.step button');
+      minus.onclick = () => { const n = (cart.get(m.id) || 0) - 1; n > 0 ? cart.set(m.id, n) : cart.delete(m.id); renderMenu(); renderStatus(); };
+      plus.onclick = () => { cart.set(m.id, Math.min(20, (cart.get(m.id) || 0) + 1)); renderMenu(); renderStatus(); };
+      $('menu').append(row);
+    }
+  }
+  const cartLines = () => [...cart].map(([id, q]) => ({ ...MENU.find(m => m.id === id), qty: q }));
+  const cartTotal = () => Math.round(cartLines().reduce((s, l) => s + l.price * l.qty, 0) * 1.05);
+  function renderCart(g) {
+    const lines = cartLines();
+    $('cart').innerHTML = lines.length ? '' : '<p class="sub">No items yet. Use + on the menu.</p>';
+    for (const l of lines) { const r = document.createElement('div'); r.className = 'row'; r.style.justifyContent = 'space-between'; r.innerHTML = '<span></span><span class="num"></span>'; r.children[0].textContent = `${l.qty}× ${l.name}`; r.children[1].textContent = rupees(l.price * l.qty); $('cart').append(r); }
+    $('cartTotal').textContent = rupees(cartTotal());
+    const ok = lines.length && g.allowed;
+    $('placeBtn').disabled = !ok;
+    $('placeHint').textContent = !lines.length ? 'Add items to place an order.' : g.allowed ? 'This preview saves the order in this browser only.' : 'Blocked: ' + g.reason;
+  }
+
+  $('placeBtn').onclick = () => {
+    const fix = currentFix(), g = checkGeofence(state.settings, fix); // re-check at the moment of ordering
+    if (!g.allowed) { renderStatus(); toast('Order blocked: ' + g.reason); return; }
+    const n = (state.orders[0]?.number || 0) + 1;
+    state.orders.unshift({ number: n, at: new Date().toISOString(), items: cartLines().map(l => `${l.qty}× ${l.name}`).join(', '), total: cartTotal(), distance_m: g.distance_m ?? null, source: fix?.source || 'none', result: 'accepted' });
+    persist(); cart.clear(); renderMenu(); renderStatus(); renderOrders();
+    toast(`Preview order #${n} saved in this browser (not sent to the kitchen).`);
+  };
+
+  function getGps() {
+    return new Promise((res, rej) => {
+      if (!navigator.geolocation) return rej(new Error('This browser cannot share location.'));
+      navigator.geolocation.getCurrentPosition(p => res({ lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy, source: 'gps' }),
+        e => rej(new Error(e.code === 1 ? 'Location was not shared here. Open this page from your own https site, or use the simulator.' : 'Could not get a location. Turn on GPS and try again.')),
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+    });
+  }
+  $('gpsBtn').onclick = async () => {
+    $('gpsNote').textContent = 'Getting your location…';
+    try { lastFix = await getGps(); $('simOn').checked = false; $('gpsNote').textContent = `Got a fix (±${Math.round(lastFix.accuracy)} m).`; }
+    catch (e) { $('gpsNote').textContent = e.message; $('simOn').checked = true; }
+    renderStatus();
+  };
+  for (const id of ['simDist', 'simAcc']) $(id).addEventListener('input', () => { $('simOn').checked = true; $('simDistVal').textContent = Number($('simDist').value) >= 1000 ? (Number($('simDist').value) / 1000).toFixed(2) + ' km' : $('simDist').value + ' m'; $('simAccVal').textContent = $('simAcc').value + ' m'; renderStatus(); });
+  $('simOn').onchange = renderStatus;
+
+  // Settings
+  function fillSettings() {
+    const s = state.settings;
+    $('sName').value = s.name; $('sLat').value = s.lat ?? ''; $('sLng').value = s.lng ?? ''; $('sRadius').value = s.radius_m;
+    $('sOn').checked = s.enabled; $('sTol').value = s.tolerance_m; $('sMax').value = s.max_accuracy_m;
+    $('cafeName').textContent = s.name || 'Your café';
+  }
+  $('saveBtn').onclick = () => {
+    const num = id => $(id).value === '' ? NaN : Number($(id).value);
+    const s = { name: $('sName').value.trim() || 'Your café', lat: num('sLat'), lng: num('sLng'), radius_m: num('sRadius'), enabled: $('sOn').checked, tolerance_m: num('sTol'), max_accuracy_m: num('sMax') };
+    if (Number.isFinite(s.lat) && (s.lat < -90 || s.lat > 90)) return toast('Latitude must be between -90 and 90.');
+    if (Number.isFinite(s.lng) && (s.lng < -180 || s.lng > 180)) return toast('Longitude must be between -180 and 180.');
+    if (!(s.radius_m >= 10 && s.radius_m <= 50000)) return toast('Radius must be between 10 m and 50 km.');
+    if (!(s.tolerance_m >= 0 && s.tolerance_m <= 500)) return toast('GPS error allowance must be 0–500 m.');
+    if (!(s.max_accuracy_m >= 20 && s.max_accuracy_m <= 10000)) return toast('Minimum precision must be 20–10000 m.');
+    if (!Number.isFinite(s.lat) || !Number.isFinite(s.lng)) { s.lat = null; s.lng = null; }
+    state.settings = s; persist(); fillSettings(); renderStatus(); toast('Saved in this browser.');
+  };
+  $('resetBtn').onclick = () => { state.settings = { ...EXAMPLE }; persist(); fillSettings(); renderStatus(); toast('Example values restored.'); };
+  $('hereBtn').onclick = async () => {
+    $('hereNote').textContent = 'Getting your location…';
+    try { const f = await getGps(); $('sLat').value = f.lat.toFixed(6); $('sLng').value = f.lng.toFixed(6); $('hereNote').textContent = `Filled in (±${Math.round(f.accuracy)} m). Press Save.`; }
+    catch (e) { $('hereNote').textContent = e.message + ' You can type the coordinates instead.'; }
+  };
+
+  function renderOrders() {
+    if (!state.orders.length) { $('orders').innerHTML = '<p class="sub">No preview orders yet.</p>'; return; }
+    const t = document.createElement('table'); t.className = 'log';
+    t.innerHTML = '<thead><tr><th>#</th><th>Time</th><th>Items</th><th>Distance</th><th>Total</th></tr></thead><tbody></tbody>';
+    for (const o of state.orders) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td class="num"></td><td></td><td></td><td></td><td class="num"></td>';
+      tr.children[0].textContent = o.number; tr.children[1].textContent = new Date(o.at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+      tr.children[2].textContent = o.items; tr.children[3].textContent = o.distance_m == null ? 'check off' : `${o.distance_m} m (${o.source})`; tr.children[4].textContent = rupees(o.total);
+      t.tBodies[0].append(tr);
+    }
+    $('orders').replaceChildren(t);
+  }
+  $('clearBtn').onclick = () => { state.orders = []; persist(); renderOrders(); };
+
+  // Tabs
+  document.querySelector('.tabs').onclick = e => {
+    const b = e.target.closest('[data-tab]'); if (!b) return;
+    for (const x of document.querySelectorAll('[data-tab]')) { x.setAttribute('aria-selected', String(x === b)); $('view-' + x.dataset.tab).hidden = x !== b; }
+  };
+
+  // Example cart so the first view shows the flow
+  cart.set(1, 1); cart.set(5, 1);
+  fillSettings(); renderMenu(); renderStatus(); renderOrders();
+})();
+</script>
+
+</body></html>
