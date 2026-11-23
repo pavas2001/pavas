@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kitchen Display</title>
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/app.css">
+  <style>
+    body { background: var(--bg); }
+    .bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 5; }
+    .bar h1 { font-size: 18px; margin: 0 12px 0 0; }
+    .bar select { width: auto; }
+    .live { font-size: 12px; font-weight: 700; color: var(--ok); } .live.off { color: var(--bad); }
+    .board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 12px 16px; align-items: start; }
+    @media (max-width: 900px) { .board { grid-template-columns: 1fr; } }
+    .col h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-2); display: flex; justify-content: space-between; }
+    .tk { background: var(--surface); border: 1px solid var(--border); border-left: 5px solid var(--info); border-radius: var(--radius); padding: 12px; margin-bottom: 10px; box-shadow: var(--shadow); }
+    .tk.preparing { border-left-color: var(--warn); } .tk.ready { border-left-color: var(--ok); }
+    .tk.delayed { border-color: var(--bad); border-left-color: var(--bad); background: var(--bad-soft); animation: pulse 2s infinite; }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--bad) 25%, transparent); } }
+    .tk .hd { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .tk .where { font-size: 20px; font-weight: 800; }
+    .tk .meta { font-size: 12px; color: var(--text-2); }
+    .tk ul { list-style: none; padding: 0; margin: 10px 0; }
+    .tk li { padding: 6px 0; border-top: 1px dashed var(--border); display: flex; gap: 8px; align-items: flex-start; }
+    .tk li.done { opacity: .5; text-decoration: line-through; }
+    .tk li .q { font-weight: 800; font-size: 16px; min-width: 28px; }
+    .tk li .n { flex: 1; font-size: 15px; font-weight: 600; }
+    .tk .mod { display: block; font-weight: 500; font-size: 13px; color: var(--text-2); }
+    .tk .note { display: block; font-weight: 700; font-size: 13px; color: var(--accent); }
+    .tk .acts { display: flex; gap: 6px; }
+    .tk .acts .btn { flex: 1; }
+    .age { font-weight: 700; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <div id="login" hidden></div>
+  <div id="app" hidden>
+    <div class="bar">
+      <h1>🍳 Kitchen</h1>
+      <select id="station" aria-label="Station"><option value="">All stations</option></select>
+      <select id="branch" aria-label="Branch"></select>
+      <label class="check"><input type="checkbox" id="hist"> History</label>
+      <label class="check"><input type="checkbox" id="sound" checked> Sound</label>
+      <span class="grow"></span>
+      <span id="live" class="live">● LIVE</span><span id="clock" class="num"></span>
+      <a class="btn sm" href="/admin">Back office</a>
+    </div>
+    <div class="board" id="board"></div>
+  </div>
+  <div id="toasts"></div>
+  <script type="module" src="/kds/kds.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#6b2fa0">
+  <title>Pixberry ERP</title>
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/admin/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+  <div id="login" hidden></div>
+  <div id="shell" hidden>
+    <aside id="nav"></aside>
+    <div id="mainwrap">
+      <header id="topbar"></header>
+      <div id="offline" class="banner warn" hidden style="margin:12px 16px 0">You're offline. Orders you create are saved on this device and sent when the connection returns.</div>
+      <main id="view"></main>
+    </div>
+  </div>
+  <div id="toasts" aria-live="polite"></div>
+  <script type="module" src="/admin/app.js"></script>
+</body>
+</html>
