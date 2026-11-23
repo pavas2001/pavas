@@ -82,10 +82,34 @@ r.put('/settings/:key', A.requirePerm('settings.manage'), (req, res) => {
     value = clean;
   }
   if (key === 'tax' && value) { value.rate = Number(value.rate) || 0; if (!['inclusive', 'exclusive'].includes(value.mode)) value.mode = 'exclusive'; }
+  if (key === 'menu_page' && value) {
+    if (value.accent && !/^#[0-9a-fA-F]{6}$/.test(value.accent)) throw U.httpError(400, 'Accent colour must look like #f5a30b');
+    for (const k of ['title', 'welcome', 'tagline', 'instagram']) value[k] = String(value[k] ?? '').slice(0, 200);
+  }
   if (key === 'timezone') { try { new Intl.DateTimeFormat('en', { timeZone: value }); } catch { throw U.httpError(400, 'Unknown timezone'); } }
   U.setSetting(key, value);
   U.audit(req.user, 'settings.update', 'settings', null, { key });
   res.json({ ok: true, value: U.getSetting(key) });
+});
+
+// ---------- Logo upload (stored on disk next to the database, served at /media) ----------
+const MEDIA_DIR = path.join(DATA_DIR, 'media');
+r.post('/settings/logo', A.requirePerm('settings.manage'), express.json({ limit: '4mb' }), (req, res) => {
+  const m = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(req.body?.data_url || ''));
+  if (!m) throw U.httpError(400, 'Upload a PNG, JPG or WebP image');
+  const buf = Buffer.from(m[2], 'base64');
+  if (buf.length > 2 * 1024 * 1024) throw U.httpError(400, 'Logo must be under 2 MB');
+  const sig = { png: [0x89, 0x50], jpeg: [0xff, 0xd8], webp: [0x52, 0x49] }[m[1]];
+  if (buf[0] !== sig[0] || buf[1] !== sig[1]) throw U.httpError(400, 'That file is not a valid image');
+  fs.mkdirSync(MEDIA_DIR, { recursive: true });
+  const file = `logo-${Date.now()}.${m[1] === 'jpeg' ? 'jpg' : m[1]}`;
+  fs.writeFileSync(path.join(MEDIA_DIR, file), buf);
+  const cafe = U.getSetting('cafe');
+  const old = /^\/media\/(logo-\d+\.(png|jpg|webp))$/.exec(cafe.logo_url || '');
+  U.setSetting('cafe', { ...cafe, logo_url: `/media/${file}` });
+  if (old) fs.rmSync(path.join(MEDIA_DIR, old[1]), { force: true });
+  U.audit(req.user, 'settings.logo', 'settings', null, { file });
+  res.json({ logo_url: `/media/${file}` });
 });
 
 // ---------- Branches (multi-branch + café location for the QR geofence) ----------
@@ -180,4 +204,4 @@ r.get('/export/all.json', A.requirePerm('settings.manage'), (req, res) => {
   res.json(out);
 });
 
-module.exports = { router: r, backupNow, BACKUP_DIR };
+module.exports = { router: r, backupNow, BACKUP_DIR, MEDIA_DIR };

@@ -19,7 +19,7 @@ function createApp() {
     res.setHeader('Permissions-Policy', 'geolocation=(self), camera=(), microphone=()');
     next();
   });
-  app.use(express.json({ limit: '2mb' }));
+  app.use(express.json({ limit: '4mb' }));
   app.get('/healthz', (_req, res) => res.json({ ok: true, db: !!get('SELECT 1 AS ok') }));
 
   // ---------- Public (customer) API ----------
@@ -69,6 +69,7 @@ function createApp() {
   // ---------- Frontends ----------
   const pub = path.join(__dirname, '..', 'public');
   app.use(express.static(pub, { index: false, maxAge: '1h' }));
+  app.use('/media', express.static(require('./routes/system').MEDIA_DIR, { index: false, maxAge: '1d', dotfiles: 'deny' }));
   app.get('/order/:token', (_req, res) => res.sendFile(path.join(pub, 'order', 'index.html')));
   app.get(['/admin', '/admin/'], (_req, res) => res.sendFile(path.join(pub, 'admin', 'index.html')));
   app.get(['/preview', '/preview/'], (_req, res) => res.sendFile(path.join(pub, 'preview', 'index.html')));

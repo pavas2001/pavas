@@ -6,6 +6,10 @@ const { all, get, run, insert } = require('./db');
 // ---------- Settings ----------
 const DEFAULT_SETTINGS = {
   cafe: { name: 'Pixberry Café', logo_url: '', address: '', phone: '', email: '', gstin: '', website: '' },
+  menu_page: {                         // customer QR menu page look
+    title: 'MENU', welcome: 'Welcome to {cafe}', tagline: 'Tap an item, place your order, and enjoy every bite with comfort & happiness ✨',
+    accent: '#f5a30b', instagram: '', show_logo: true,
+  },
   public_url: '',                       // e.g. https://order.mycafe.in (used inside QR codes); blank = request host
   timezone: 'Asia/Kolkata',
   currency: { code: 'INR', symbol: '₹' },

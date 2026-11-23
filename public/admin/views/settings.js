@@ -20,7 +20,11 @@ export async function render(el, [initialTab]) {
     if (tab === 'cafe') {
       c.innerHTML = section('Café profile', fieldsHtml(cafeDefs, S.cafe), 'cafe', 'Shown on the customer menu, bills and QR cards.') +
         section('Web address & region', fieldsHtml(regionDefs, { public_url: S.public_url, timezone: S.timezone, currency_symbol: S.currency.symbol, currency_code: S.currency.code }), 'region',
-          'The public URL is printed inside QR codes, so set it to the https address customers will use (location access needs https).');
+          'The public URL is printed inside QR codes, so set it to the https address customers will use (location access needs https).') +
+        `<div class="card"><h2>QR menu page</h2><p class="muted">What guests see at the top of the menu after scanning a table QR code.</p>
+          <div class="row" style="align-items:center;gap:16px;margin-bottom:12px"><div style="width:120px;height:100px;border-radius:22px;background:#fff;display:grid;place-items:center;overflow:hidden;border:1px solid var(--border)">${S.cafe.logo_url ? `<img src="${esc(S.cafe.logo_url)}" alt="Logo" style="max-width:100%;max-height:100%;object-fit:contain">` : '<span class="faint">No logo</span>'}</div>
+            <div style="display:grid;gap:6px"><label for="logoFile">Café logo (PNG, JPG or WebP, under 2 MB)</label><input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp"><button class="btn sm" data-uplogo>Upload logo</button></div></div>
+          <form data-key="menu_page" onsubmit="return false">${fieldsHtml(pageDefs, S.menu_page)}<div class="row" style="margin-top:8px"><button class="btn primary" data-save="menu_page">Save</button><a class="btn" href="#/tables" >Open a table's QR page to preview</a></div></form></div>`;
     } else if (tab === 'hours') {
       c.innerHTML = `<div class="card"><h2>Opening hours</h2><form onsubmit="return false"><div class="table-wrap"><table class="data"><thead><tr><th>Day</th><th>Opens</th><th>Closes</th><th>Closed</th></tr></thead><tbody>
         ${DAYS.map((d, i) => { const h = S.hours[i] || {}; return `<tr><td>${d}</td><td><input type="time" data-o="${i}" value="${esc(h.open || '')}"></td><td><input type="time" data-c="${i}" value="${esc(h.close || '')}"></td><td><input type="checkbox" data-x="${i}" ${h.closed ? 'checked' : ''}></td></tr>`; }).join('')}
@@ -117,6 +121,11 @@ export async function render(el, [initialTab]) {
   }
 
   const cafeDefs = [{ name: 'name', label: 'Café name', required: true }, { name: 'logo_url', label: 'Logo URL' }, { name: 'address', label: 'Address', span: 1 }, { name: 'phone', label: 'Phone' }, { name: 'email', label: 'Email', type: 'email' }, { name: 'gstin', label: 'GSTIN / tax ID' }, { name: 'website', label: 'Website' }];
+  const pageDefs = [
+    { name: 'title', label: 'Big title', placeholder: 'MENU' }, { name: 'accent', label: 'Accent colour', type: 'color', hint: 'Used for the welcome text, prices and buttons' },
+    { name: 'welcome', label: 'Welcome line', span: 1, hint: '{cafe} is replaced with your café name' }, { name: 'tagline', label: 'Tagline', span: 1 },
+    { name: 'instagram', label: 'Instagram handle (optional)', placeholder: '@yourcafe' }, { name: 'show_logo', label: 'Show logo card', type: 'checkbox' },
+  ];
   const regionDefs = [{ name: 'public_url', label: 'Public URL for QR codes', span: 1, placeholder: 'https://order.mycafe.in' }, { name: 'timezone', label: 'Time zone', placeholder: 'Asia/Kolkata' }, { name: 'currency_symbol', label: 'Currency symbol' }, { name: 'currency_code', label: 'Currency code' }];
   const taxDefs = [{ name: 'enabled', label: 'Charge tax', type: 'checkbox' }, { name: 'label', label: 'Tax name', placeholder: 'GST' }, { name: 'rate', label: 'Rate (%)', type: 'number', step: '0.01' }, { name: 'mode', label: 'Prices are', type: 'select', options: [['exclusive', 'Exclusive of tax (add on bill)'], ['inclusive', 'Inclusive of tax']] }, { name: 'split', label: 'Show as CGST + SGST', type: 'checkbox' }];
   const scDefs = [{ name: 'enabled', label: 'Add a service charge', type: 'checkbox' }, { name: 'percent', label: 'Percent', type: 'number', step: '0.1' }, { name: 'dine_in_only', label: 'Dine-in orders only', type: 'checkbox' }];
@@ -140,6 +149,7 @@ export async function render(el, [initialTab]) {
         if (key === 'cafe') await save('cafe', readFields(form, cafeDefs));
         if (key === 'region') { const d = readFields(form, regionDefs); await save('public_url', d.public_url.trim().replace(/\/$/, '')); await save('timezone', d.timezone.trim() || 'Asia/Kolkata'); await save('currency', { symbol: d.currency_symbol || '₹', code: d.currency_code || 'INR' }); }
         if (key === 'tax') await save('tax', readFields(form, taxDefs));
+        if (key === 'menu_page') await save('menu_page', readFields(form, pageDefs));
         if (key === 'service_charge') await save('service_charge', readFields(form, scDefs));
         if (key === 'payments') { const d = readFields(form, [{ name: 'rounding', type: 'checkbox' }, { name: 'payment_methods' }]); await save('rounding', d.rounding); await save('payment_methods', d.payment_methods.split(',').map(s => s.trim().toLowerCase()).filter(Boolean)); }
         if (key === 'receipt') await save('receipt', readFields(form, receiptDefs));
@@ -166,6 +176,14 @@ export async function render(el, [initialTab]) {
         const v = {};
         S.roles.filter(r => r !== 'admin').forEach(r => { v[r] = $$(`[data-role="${r}"]:checked`).map(x => x.dataset.perm); });
         await save('permissions', v);
+      }
+      if (q('[data-uplogo]')) {
+        const f = $('#logoFile').files[0];
+        if (!f) return toast('Choose a logo image first', 'bad');
+        if (f.size > 2 * 1024 * 1024) return toast('Logo must be under 2 MB', 'bad');
+        const data_url = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(f); });
+        await api('POST', '/settings/logo', { data_url });
+        S = await getSettings(true); toast('Logo uploaded', 'ok'); draw();
       }
       if (q('[data-backup]')) { const r = await api('POST', '/backups'); toast(`Backup created: ${r.file}`, 'ok'); draw(); }
       if (q('[data-dl]')) downloadFile(`/backups/${encodeURIComponent(q('[data-dl]').dataset.dl)}`, q('[data-dl]').dataset.dl);

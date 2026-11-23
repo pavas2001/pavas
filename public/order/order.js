@@ -87,15 +87,32 @@ function changeSimple(it, d) {
 }
 
 // ---------------- Rendering ----------------
+const ICON = {
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>',
+  cart: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 3h3.2l2.6 11.2a1.5 1.5 0 0 0 1.5 1.2h8.4a1.5 1.5 0 0 0 1.4-1.1L21 7H6.6L6 4.6A2 2 0 0 0 4.1 3H2z"/><circle cx="9.5" cy="19.5" r="1.7"/><circle cx="17.5" cy="19.5" r="1.7"/></svg>',
+};
 function shell() {
-  const c = S.ctx;
-  const where = c.table.kind === 'counter' ? 'Takeaway & pickup' : `Table ${esc(c.table.label)}${c.table.section ? ` · ${esc(c.table.section)}` : ''} · Dine-in`;
+  const c = S.ctx, pg = c.page || {};
+  if (pg.accent && /^#[0-9a-fA-F]{6}$/.test(pg.accent)) document.documentElement.style.setProperty('--accent', pg.accent);
+  const where = c.table.kind === 'counter' ? ['Takeaway & pickup'] : [`Table ${c.table.label}`, ...(c.table.section ? [c.table.section] : []), 'Dine-in'];
+  const welcome = (pg.welcome || 'Welcome to {cafe}').replace('{cafe}', c.cafe.name);
+  const initials = c.cafe.name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
   app.innerHTML = `
-    <header class="top"><div class="wrap">
-      <div class="brand">${c.cafe.logo_url ? `<img src="${esc(c.cafe.logo_url)}" alt="">` : ''}<div><h1>${esc(c.cafe.name)}</h1><div class="where">${where}${c.branch.name ? ` · ${esc(c.branch.name)}` : ''}</div></div></div>
-      ${c.open && c.open.open === false ? `<div class="banner bad closed">${esc(c.open.reason)}</div>` : c.open?.info ? `<div class="banner info closed">${esc(c.open.info)}</div>` : ''}
-      <div id="loc"></div>
+    <header class="bar"><div class="wrap">
+      <div class="name">${esc(c.cafe.name)}</div>
+      <button class="round" data-act="search" aria-label="Search the menu">${ICON.search}</button>
+      <button class="round" data-act="cart" aria-label="View cart">${ICON.cart}<span class="count" id="cartCount" hidden></span></button>
     </div></header>
+    <section class="wrap hero">
+      <h1 class="title">${esc(pg.title || 'Menu')}</h1>
+      ${pg.show_logo !== false ? `<div class="logo-card">${c.cafe.logo_url ? `<img src="${esc(c.cafe.logo_url)}" alt="${esc(c.cafe.name)} logo">` : `<span class="initials">${esc(initials)}</span>`}</div>` : ''}
+      ${pg.instagram ? `<div class="ig">Instagram: ${esc(pg.instagram)}</div>` : ''}
+      <h2 class="welcome">🍽️ ${esc(welcome)}</h2>
+      ${pg.tagline ? `<p class="tagline">${esc(pg.tagline)}</p>` : ''}
+      <div class="where">${where.map(w => `<span>${esc(w)}</span>`).join('')}</div>
+      ${c.open && c.open.open === false ? `<div class="banner bad">${esc(c.open.reason)}</div>` : c.open?.info ? `<div class="banner info">${esc(c.open.info)}</div>` : ''}
+      <div id="loc"></div>
+    </section>
     <main class="wrap" id="main"></main>
     <div class="cartbar" id="cartbar"></div>`;
   renderLoc();
@@ -106,7 +123,7 @@ function renderMain() {
   const main = $('#main');
   main.innerHTML = `
     ${S.order && ['open', 'billed'].includes(S.order.status) ? `<div class="banner info row between" style="margin-top:12px"><span>Your order #${S.order.number} · ${esc(S.order.progress)}</span><button class="btn sm" data-act="view-order">View order</button></div>` : ''}
-    <div class="sticky"><div class="search"><span>🔍</span><input id="q" type="search" placeholder="Search the menu" value="${esc(S.q)}" aria-label="Search menu"></div>
+    <div class="sticky"><div class="search" id="searchbox" ${S.q || S.searchOpen ? '' : 'hidden'}><span>🔍</span><input id="q" type="search" placeholder="Search the menu" value="${esc(S.q)}" aria-label="Search menu"></div>
     <nav class="cats" id="cats">${S.menu.map(c => `<button data-cat="${c.id}">${esc(c.name)}</button>`).join('')}</nav></div>
     <div id="menu"></div>`;
   $('#q').addEventListener('input', e => { S.q = e.target.value; renderMenu(); });
@@ -140,6 +157,8 @@ function renderMenu() {
     || `<div class="empty">No dishes match “${esc(S.q)}”.</div>`);
 }
 function renderCartBar() {
+  const n = cartCount(), cc = $('#cartCount');
+  if (cc) { cc.hidden = !n; cc.textContent = n; }
   const el = $('#cartbar'); if (!el) return;
   if (S.view !== 'menu' || !S.cart.length) { el.innerHTML = ''; return; }
   el.innerHTML = `<button class="btn primary lg" data-act="cart"><span>${cartCount()} item${cartCount() > 1 ? 's' : ''} · ${money(cartTotal())}</span><span>View cart →</span></button>`;
@@ -341,7 +360,11 @@ document.addEventListener('click', async e => {
   else if (open) { const it = itemById(Number(open.dataset.open)); if (!it.variants.length && !it.groups.length) changeSimple(it, 1); else openItem(it); }
   else if (cat) { $$('#cats button').forEach(b => b.classList.toggle('on', b === cat)); document.getElementById(`cat-${cat.dataset.cat}`)?.scrollIntoView({ behavior: 'smooth' }); }
   const act = t.closest('[data-act]')?.dataset.act;
-  if (act === 'cart') openCart();
+  if (act === 'cart') { if (S.cart.length) openCart(); else if (S.order && S.view !== 'order') { S.view = 'order'; renderMain(); renderCartBar(); } else toast('Your cart is empty — tap ADD on any dish.'); }
+  if (act === 'search') {
+    if (S.view !== 'menu') { S.view = 'menu'; renderMain(); }
+    S.searchOpen = true; const box = $('#searchbox'); if (box) { box.hidden = false; $('#q').focus(); box.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  }
   if (act === 'relocate' && !t.closest('.sheet')) checkLocation({ fresh: true });
   if (act === 'view-order') { S.view = 'order'; renderMain(); renderCartBar(); }
   if (act === 'menu' || act === 'more') { S.view = 'menu'; renderMain(); window.scrollTo(0, 0); }

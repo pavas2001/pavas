@@ -94,6 +94,7 @@ r.get('/t/:token', (req, res) => {
   const hours = isOpenNow();
   res.json({
     cafe: { name: cafe.name, logo_url: cafe.logo_url, phone: cafe.phone },
+    page: getSetting('menu_page'),
     branch: { id: branch.id, name: branch.name, address: branch.address },
     table: { label: target.label, kind: table.kind, section: table.section_name, merged_from: table.merged_into ? table.label : null },
     order_types: table.kind === 'counter' ? ['takeaway', 'pickup'] : ['dine_in'],
