@@ -93,7 +93,7 @@ const ICON = {
 };
 function shell() {
   const c = S.ctx, pg = c.page || {};
-  if (pg.accent && /^#[0-9a-fA-F]{6}$/.test(pg.accent)) document.documentElement.style.setProperty('--accent', pg.accent);
+  if (pg.accent && /^#[0-9a-fA-F]{6}$/.test(pg.accent)) document.documentElement.style.setProperty('--menu-accent', pg.accent);
   const where = c.table.kind === 'counter' ? ['Takeaway & pickup'] : [`Table ${c.table.label}`, ...(c.table.section ? [c.table.section] : []), 'Dine-in'];
   const welcome = (pg.welcome || 'Welcome to {cafe}').replace('{cafe}', c.cafe.name);
   const initials = c.cafe.name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();

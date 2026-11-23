@@ -4,7 +4,7 @@
   /* Violet grounds + pistachio-green accent */
   --bg: #2b1f47; --surface: #362858; --surface-2: #413166; --border: #4f3d78; --border-strong: #6a56a0;
   --text: #f6f3fc; --text-2: #c9bfe0; --text-3: #9e92bd;
-  --brand: var(--accent, #a8d672); --brand-ink: #1a2a0c; --brand-soft: rgba(168, 214, 114, .16); --brand-strong: #bde38f;
+  --brand: var(--menu-accent, #a8d672); --brand-ink: #1a2a0c; --brand-soft: rgba(168, 214, 114, .16); --brand-strong: #bde38f;
   --bar: #1e1535;
   --ok: #a8d672; --ok-soft: rgba(168, 214, 114, .15); --warn: #f6c35b; --warn-soft: rgba(246, 195, 91, .14);
   --bad: #ff8fa3; --bad-soft: rgba(255, 143, 163, .15); --info: #b9a6ff; --info-soft: rgba(185, 166, 255, .16);

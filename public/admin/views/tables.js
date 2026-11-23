@@ -6,7 +6,7 @@ import { ago } from '/assets/lib.js';
 import { openOrder } from '/admin/views/orderpanel.js';
 
 const ST = { available: 'Available', ordering: 'Ordering', occupied: 'Occupied', bill_requested: 'Bill requested', cleaning: 'Needs cleaning' };
-const COLORS = { available: 'var(--ok)', ordering: 'var(--info)', occupied: 'var(--warn)', bill_requested: 'var(--accent)', cleaning: 'var(--text-3)' };
+const COLORS = { available: 'var(--ok)', ordering: 'var(--info)', occupied: 'var(--warn)', bill_requested: 'var(--bad)', cleaning: 'var(--text-3)' };
 
 export async function render(el) {
   let tab = 'floor', tables = [], sections = [], reqs = [], section = '';
