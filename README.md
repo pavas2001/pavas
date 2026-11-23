@@ -23,6 +23,10 @@ On the first start, the server creates the user **`admin`** and prints its passw
 
 Get the QR codes from **Tables & floor › Tables & QR codes**. "Print all QR codes" gives you a printable sheet.
 
+## Hosting on HTTPS
+
+See **[DEPLOY.md](DEPLOY.md)**: Railway (easiest) or your own server with automatic HTTPS (Docker + Caddy). Set `PUBLIC_URL` to your https address.
+
 ## QR ordering is limited to a radius around the café
 
 Customers can browse the menu from anywhere. They can only **place an order, add items, call a waiter or ask for the bill** while their phone is within the set radius of the café.
@@ -93,6 +97,7 @@ This matches most WhatsApp Business API partners, SMS gateways and email relays,
 | `PIXBERRY_DB` | `data/pixberry.db` | Database file |
 | `PIXBERRY_BACKUP_DIR` | `backups/` | Where backups are written |
 | `ADMIN_PASSWORD` | random, printed | Password for the first `admin` user |
+| `PUBLIC_URL` | — | Your https address (used in QR codes and receipt links) if not set in Settings |
 | `TRUST_PROXY` | off | Set to `1` when running behind a reverse proxy (correct client IPs for rate limits) |
 | `CAFE_LAT`, `CAFE_LNG` | Bengaluru | Café location used by `npm run seed` |
 

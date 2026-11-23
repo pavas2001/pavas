@@ -19,6 +19,7 @@ function createApp() {
     next();
   });
   app.use(express.json({ limit: '2mb' }));
+  app.get('/healthz', (_req, res) => res.json({ ok: true, db: !!get('SELECT 1 AS ok') }));
 
   // ---------- Public (customer) API ----------
   app.use('/api/public', require('./routes/public').router);

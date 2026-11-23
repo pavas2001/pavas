@@ -36,6 +36,11 @@ const DEFAULT_SETTINGS = {
 };
 
 function getSetting(key) {
+  if (key === 'public_url') { // Settings value wins; otherwise PUBLIC_URL from the environment (set when hosting)
+    const r = get('SELECT value FROM settings WHERE key = ?', key);
+    const v = r ? JSON.parse(r.value) : '';
+    return (v || process.env.PUBLIC_URL || '').replace(/\/$/, '');
+  }
   const r = get('SELECT value FROM settings WHERE key = ?', key);
   if (!r) return structuredClone(DEFAULT_SETTINGS[key]);
   const v = JSON.parse(r.value);

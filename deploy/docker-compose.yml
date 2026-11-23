@@ -1,0 +1,27 @@
+# One-server setup: Pixberry + Caddy (automatic HTTPS from Let's Encrypt).
+# Usage on the server:  DOMAIN=order.mycafe.in ADMIN_PASSWORD='choose-a-strong-one' docker compose up -d --build
+services:
+  app:
+    build: ..
+    restart: unless-stopped
+    environment:
+      PUBLIC_URL: https://${DOMAIN:?set DOMAIN, e.g. order.mycafe.in}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      TZ: Asia/Kolkata
+    volumes:
+      - pixberry-data:/data
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on: [app]
+volumes:
+  pixberry-data:
+  caddy-data:
+  caddy-config:
