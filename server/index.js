@@ -157,7 +157,7 @@ function bootstrap() {
   return pw;
 }
 
-if (require.main === module) {
+function start() {
   const pw = bootstrap();
   const port = Number(process.env.PORT) || 3000;
   createApp().listen(port, () => {
@@ -170,4 +170,6 @@ if (require.main === module) {
   startJobs();
 }
 
-module.exports = { createApp, bootstrap, startJobs, receiptHtml };
+if (require.main === module) start();
+
+module.exports = { createApp, bootstrap, startJobs, receiptHtml, start };

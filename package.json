@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "Pixberry ERP — café management: QR ordering with geofence, POS, KDS, tables, reservations, inventory, recipes, purchasing, staff, loyalty and reports.",
   "private": true,
-  "main": "server/index.js",
+  "main": "app.js",
   "engines": {
     "node": ">=22.13"
   },
   "scripts": {
-    "start": "node --disable-warning=ExperimentalWarning server/index.js",
+    "start": "node --disable-warning=ExperimentalWarning app.js",
     "dev": "node --disable-warning=ExperimentalWarning --watch server/index.js",
     "seed": "node --disable-warning=ExperimentalWarning scripts/seed.js",
     "backup": "node --disable-warning=ExperimentalWarning scripts/backup.js",

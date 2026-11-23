@@ -25,7 +25,7 @@ Get the QR codes from **Tables & floor › Tables & QR codes**. "Print all QR co
 
 ## Hosting on HTTPS
 
-See **[DEPLOY.md](DEPLOY.md)**: Railway (easiest) or your own server with automatic HTTPS (Docker + Caddy). Set `PUBLIC_URL` to your https address.
+See **[UPLOAD.md](UPLOAD.md)** for cPanel / Hostinger-style hosting with your own domain, or **[DEPLOY.md](DEPLOY.md)**: Railway (easiest) or your own server with automatic HTTPS (Docker + Caddy). Set `PUBLIC_URL` to your https address.
 
 ## QR ordering is limited to a radius around the café
 
