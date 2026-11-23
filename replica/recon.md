@@ -184,7 +184,7 @@ Guest 1-n Order (optional).
 
 ## Feature matrix
 
-See `features.csv`. Must: 21, should: 16, could: 21, skip: 3.
+See `features.csv`. Must: 21, should: 16, could: 25, skip: 3.
 
 ## Out of scope (cannot or should not be cloned)
 
