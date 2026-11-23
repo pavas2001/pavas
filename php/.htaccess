@@ -1,0 +1,11 @@
+# Pixberry Café (PHP edition)
+Options -Indexes
+DirectoryIndex index.php
+<FilesMatch "^(config\.php|lib\.php|schema\.sql|.*\.lock)$">
+  Require all denied
+</FilesMatch>
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "same-origin"
+  Header set Permissions-Policy "geolocation=(self), camera=(), microphone=()"
+</IfModule>

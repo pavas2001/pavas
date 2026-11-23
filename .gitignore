@@ -3,3 +3,7 @@ data/
 backups/
 *.db
 *.db-*
+php/config.php
+php/uploads/*.jpg
+php/uploads/*.png
+php/uploads/*.webp

@@ -1,0 +1,18 @@
+// Drawn product pictures for items without a photo (picked from the item's name / category).
+window.PBArt = (() => {
+  const KINDS = [['glass', /cold|iced|ice |shake|smoothie|juice|soda|lime|lemonade|frapp|mojito|brew|mocktail/i], ['cup', /coffee|cappuc|latte|espresso|americano|mocha|tea|chai|cocoa|flat white|macchiato/i],
+    ['dessert', /brownie|cake|cheesecake|dessert|cookie|muffin|pastry|ice cream|waffle|pancake|tart|donut/i], ['toast', /toast|omelette|egg|breakfast|croissant|bagel/i],
+    ['sandwich', /sandwich|burger|wrap|panini|sub|roll|club/i], ['bowl', /bowl|salad|pasta|rice|biryani|noodle|curry|soup|pesto|food|maggi/i]];
+  const BG = { cup: '#f3e6d8', glass: '#dcecf2', dessert: '#f6e0e6', toast: '#f7ecd0', sandwich: '#eaf0dc', bowl: '#e4efe0', plate: '#ece6f3' };
+  const ART = {
+    cup: '<ellipse cx="40" cy="60" rx="24" ry="5" fill="#d9c4ae"/><path d="M20 30h34l-4 26a6 6 0 0 1-6 5H30a6 6 0 0 1-6-5z" fill="#fff" stroke="#8a6a4f" stroke-width="1.5"/><path d="M54 36c8 0 8 12 0 12" fill="none" stroke="#8a6a4f" stroke-width="3"/><ellipse cx="37" cy="31" rx="16" ry="3.5" fill="#b07a4a"/><ellipse cx="37" cy="31" rx="8" ry="1.8" fill="#f3e2c8"/><path d="M31 22c-2-3 2-5 0-9M39 22c-2-3 2-5 0-9" fill="none" stroke="#b9a08a" stroke-width="1.6" stroke-linecap="round"/>',
+    glass: '<path d="M26 18h28l-4 46a4 4 0 0 1-4 4H34a4 4 0 0 1-4-4z" fill="#fff" opacity=".85" stroke="#6f8f9c" stroke-width="1.5"/><path d="M28 34h24l-2.6 30a3 3 0 0 1-3 3H33.6a3 3 0 0 1-3-3z" fill="#7a4b2a"/><rect x="31" y="36" width="8" height="8" rx="1.5" fill="#e8f6fb" opacity=".9"/><rect x="41" y="40" width="7" height="7" rx="1.5" fill="#e8f6fb" opacity=".8"/><path d="M45 10l-4 40" stroke="#8fc45a" stroke-width="3" stroke-linecap="round"/>',
+    dessert: '<ellipse cx="40" cy="62" rx="26" ry="5" fill="#e5c9d2"/><path d="M18 42l30-16 14 8v22H18z" fill="#5a3322"/><path d="M18 42l30-16 14 8-30 14z" fill="#7b4a33"/><path d="M18 42h14v14H18z" fill="#4a2a1c"/><circle cx="46" cy="30" r="5" fill="#fbf4ea"/><circle cx="49" cy="25" r="3" fill="#c8323c"/>',
+    toast: '<ellipse cx="40" cy="62" rx="27" ry="5" fill="#e3d3ad"/><path d="M16 52c-4-14 4-26 12-26 4-6 20-6 24 0 8 0 16 12 12 26z" fill="#d79a4a"/><path d="M20 50c-3-11 3-20 9-20 3-5 18-5 21 0 6 0 12 9 10 20z" fill="#f2cf8a"/><ellipse cx="40" cy="42" rx="15" ry="9" fill="#fff"/><circle cx="40" cy="42" r="5.5" fill="#f5a623"/>',
+    sandwich: '<ellipse cx="40" cy="62" rx="27" ry="5" fill="#d4dcc0"/><path d="M14 54L40 18l26 36z" fill="#e9c47c"/><path d="M17 50l23-30 23 30z" fill="#f6e0b0"/><path d="M14 54h52l-3 4H17z" fill="#d6a85c"/><path d="M19 47h42l-2 3H21z" fill="#5fae4e"/><path d="M22 43h36l-2 3H24z" fill="#e2574c"/><path d="M25 39h30l-2 3H27z" fill="#fff4dc"/>',
+    bowl: '<path d="M12 40h56a28 22 0 0 1-56 0z" fill="#fff" stroke="#9aa88f" stroke-width="1.5"/><ellipse cx="40" cy="40" rx="28" ry="6" fill="#7fb35f"/><circle cx="30" cy="37" r="6" fill="#5f9e47"/><circle cx="44" cy="35" r="5" fill="#e8c26a"/><circle cx="52" cy="39" r="4" fill="#e2574c"/><circle cx="38" cy="41" r="4" fill="#f2e3c2"/><ellipse cx="40" cy="66" rx="14" ry="3" fill="#c9d3bd"/>',
+    plate: '<ellipse cx="40" cy="58" rx="28" ry="7" fill="#d8cfe6"/><path d="M16 56a24 24 0 0 1 48 0z" fill="#c4b4dc"/><circle cx="40" cy="30" r="3.5" fill="#a48fc6"/><path d="M22 50a18 18 0 0 1 14-15" fill="none" stroke="#f4effa" stroke-width="2.5" stroke-linecap="round"/>',
+  };
+  const kind = it => (KINDS.find(([, re]) => re.test(it.name)) || KINDS.find(([, re]) => re.test(`${it.name} ${it.cat}`)) || ['plate'])[0];
+  return { svg(it) { const k = kind(it); return `<svg viewBox="0 0 80 80" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="80" height="80" fill="${BG[k]}"/>${ART[k]}</svg>`; } };
+})();
