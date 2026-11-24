@@ -18,6 +18,8 @@ npm start         # http://localhost:3000
 | Kitchen display | `/kds` | kitchen, anyone with `kds.view` |
 | Customer menu & ordering | `/order/<table QR token>` | guests, by scanning the table QR code |
 | Digital receipt | `/r/<order key>` | guests and staff (print) |
+| Signal counter display | `/signal` | the screen at the counter (any role that answers table requests) |
+| Signal staff app | `/signal/app` | waiters and managers, on their phones ("Add to home screen") |
 
 On the first start, the server creates the user **`admin`** and prints its password. You can also set it yourself with `ADMIN_PASSWORD=...`. The seed script adds the demo staff logins `manager`, `cashier` and `kitchen`, all with the password `pixberry123` (set `DEMO_PASSWORD` to change it).
 
@@ -50,6 +52,40 @@ Customers can browse the menu from anywhere. They can only **place an order, add
 **Limits:**
 - Browsers only share location on **https** pages (or `localhost`). Put the app behind https and enter that address in **Settings › Café profile › Public URL**, because that address is what the QR codes point to.
 - A determined user can fake GPS with developer tools or a spoofing app. The radius check stops casual remote and prank orders; it is not a guarantee. Rotating a table's QR code (**Regenerate QR**) makes old printouts stop working.
+
+## Pixberry Signal: table cubes, counter display and staff app
+
+Guests ask for something by flipping a **Signal Cube** on their table (Service, Bill, Water, Ready to order, To go, or Candle to rest), or from the QR menu page. Requests from both appear on:
+
+- **Counter display** (`/signal`): requests oldest first with live timers, a light bar in the colour of the longest-waiting request, a floor map, who is on duty, cube battery and coaster health, and today's totals. A different chime plays for each request type. Switch between English and മലയാളം with one tap.
+- **Staff app** (`/signal/app`): a phone web app for waiters. Go on duty, pick your zone (a floor section), and get a banner, vibration and chime for new requests in your zone. "On my way" claims a request, so the cube breathes and others see who's coming; "Done" finishes it. It also has a floor map with running bills, cube health, insights, and, for managers, cube pairing and display settings.
+
+**Escalation:** a request nobody has claimed after 2 minutes is flagged *late* and the whole floor is notified. After 4 minutes the manager is notified. Change the timings in the staff app under **Shift**.
+
+**Roles:** a new **Waiter** role can answer requests and take orders. Cashiers and managers can answer too (the `signal.respond` permission). Pairing cubes and changing display settings needs `tables.manage`.
+
+### Connecting cubes
+
+1. In the staff app, open **Cubes › Pair a new cube**, choose the table, and copy the key. It is shown only once.
+2. The cube sends that key in an `X-Device-Key` header:
+
+| Call | Body | When |
+| --- | --- | --- |
+| `POST /api/device/face` | `{ "face": "water", "battery": 80, "on_coaster": true }` | The cube has settled on a face for one second. `face`: `service`, `bill`, `water`, `order`, `togo` or `rest`. Flipping to another face replaces the cube's unanswered request; `rest` cancels it. |
+| `POST /api/device/cancel` | `{}` | Two quick shakes |
+| `POST /api/device/heartbeat` | `{ "battery": 80, "on_coaster": true, "rssi": -60, "firmware": "1.0.0" }` | Every few minutes |
+
+Every call returns what the cube's light should do: `{ "light": "off" | "request" | "acknowledged" | "late" | "candle", "request": { "type", "acknowledged", "late" } | null, "evening_mode", "table" }`.
+
+**No hardware yet?** `npm run seed` prints a demo key for each table's cube. Then:
+
+```bash
+npm run cube -- <key> water      # flip to Water
+npm run cube -- <key> cancel     # shake to cancel
+npm run cube -- <key> heartbeat 15 off   # report 15% battery, lifted off the coaster
+```
+
+Set `PIXBERRY_URL` if the server isn't on `http://localhost:3000`.
 
 ## What's included
 
@@ -112,12 +148,14 @@ server/
   auth.js         passwords, sessions, roles & permissions
   orders.js       order engine: pricing, tax/service/discounts, stock deduction, payments, loyalty
   crud.js         generic CRUD routes with field whitelists
-  routes/         public (QR), system, menu, pos, floor, inventory, people, reports
+  signal.js       Signal requests: cubes, claiming, escalation, floor/health/stats
+  routes/         public (QR), system, menu, pos, floor, inventory, people, reports, signal (+ device API)
 public/
   order/          customer ordering page (mobile)
   admin/          back office (views/*.js, one per section)
   kds/            kitchen display
-scripts/          seed, backup, restore
+  signal/         Signal counter display (index.html) and staff phone app (app.html)
+scripts/          seed, backup, restore, cube-sim (Signal Cube simulator)
 test/             API + geofence tests (npm test)
 ```
 

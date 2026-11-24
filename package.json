@@ -13,6 +13,7 @@
     "seed": "node --disable-warning=ExperimentalWarning scripts/seed.js",
     "backup": "node --disable-warning=ExperimentalWarning scripts/backup.js",
     "restore": "node --disable-warning=ExperimentalWarning scripts/restore.js",
+    "cube": "node scripts/cube-sim.js",
     "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js"
   },
   "dependencies": {

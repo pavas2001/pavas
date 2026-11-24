@@ -72,7 +72,7 @@ export function connectEvents(handler, onStatus = () => {}) {
     es = new EventSource(`/api/events?access_token=${encodeURIComponent(session.token)}&branch_id=${session.branch || ''}`);
     es.onopen = () => onStatus(true);
     es.onerror = () => onStatus(false);
-    for (const t of ['order.created', 'order.items_added', 'order.updated', 'table.updated', 'notification', 'menu.changed', 'reservations.changed', 'waitlist.changed'])
+    for (const t of ['order.created', 'order.items_added', 'order.updated', 'table.updated', 'notification', 'menu.changed', 'reservations.changed', 'waitlist.changed', 'signal.updated'])
       es.addEventListener(t, ev => handler(t, JSON.parse(ev.data || '{}')));
   };
   open();

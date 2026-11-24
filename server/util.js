@@ -33,6 +33,8 @@ const DEFAULT_SETTINGS = {
   },
   permissions: null,                    // role -> [permissions]; null = defaults
   backup: { enabled: true, keep_days: 14 },
+  // Pixberry Signal: table cubes, counter display and staff app
+  signal: { escalate_after_s: 120, manager_after_s: 240, evening_mode: false, chime: true, language: 'en' },
 };
 
 function getSetting(key) {

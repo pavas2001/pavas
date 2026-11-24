@@ -7,7 +7,7 @@ export async function render(el) {
   let tab = 'staff', staff = [], date = today();
   el.innerHTML = `<div class="tabs" id="st"></div><div id="sc"></div>`;
   tabs($('#st'), [['staff', 'Staff accounts'], ['attendance', 'Attendance'], ['shifts', 'Shift roster']], tab, t => { tab = t; draw(); });
-  const roles = [['admin', 'Admin'], ['manager', 'Manager'], ['cashier', 'Cashier'], ['kitchen', 'Kitchen']];
+  const roles = [['admin', 'Admin'], ['manager', 'Manager'], ['cashier', 'Cashier'], ['waiter', 'Waiter'], ['kitchen', 'Kitchen']];
   const branchOpts = [['', 'All branches'], ...session.me.branches.map(b => [b.id, b.name])];
   const hrs = h => `${Math.floor(h)}h ${Math.round((h % 1) * 60)}m`;
   async function draw() {

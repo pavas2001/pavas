@@ -22,6 +22,8 @@ function createApp() {
 
   // ---------- Public (customer) API ----------
   app.use('/api/public', require('./routes/public').router);
+  // ---------- Signal Cube devices (authenticated by device key) ----------
+  app.use('/api/device', require('./routes/signal').device);
 
   // ---------- Staff API ----------
   const api = express.Router();
@@ -40,6 +42,7 @@ function createApp() {
   api.use(require('./routes/inventory').router);
   api.use(require('./routes/people').router);
   api.use(require('./routes/reports').router);
+  api.use(require('./routes/signal').router);
 
   // Live updates for staff screens (POS, tables, KDS, notifications) via Server-Sent Events
   api.get('/events', A.requireUser, (req, res) => {
@@ -70,6 +73,8 @@ function createApp() {
   app.get('/order/:token', (_req, res) => res.sendFile(path.join(pub, 'order', 'index.html')));
   app.get(['/admin', '/admin/'], (_req, res) => res.sendFile(path.join(pub, 'admin', 'index.html')));
   app.get(['/kds', '/kds/'], (_req, res) => res.sendFile(path.join(pub, 'kds', 'index.html')));
+  app.get(['/signal', '/signal/'], (_req, res) => res.sendFile(path.join(pub, 'signal', 'index.html')));
+  app.get(['/signal/app', '/signal/app/'], (_req, res) => res.sendFile(path.join(pub, 'signal', 'app.html')));
   app.get('/', (_req, res) => res.redirect('/admin'));
 
   // ---------- Errors ----------
@@ -125,6 +130,8 @@ function startJobs() {
       }
     } catch (e) { console.error('delay job', e); }
   }, 60e3));
+  // Signal: escalate unanswered table requests (floor, then manager)
+  timers.push(setInterval(() => { try { require('./signal').escalate(); } catch (e) { console.error('signal job', e); } }, 15e3));
   // Outbound messages
   timers.push(setInterval(() => U.flushOutbox().catch(e => console.error('outbox', e)), 15e3));
   // Daily automatic backup (checked hourly)
@@ -161,6 +168,7 @@ if (require.main === module) {
     console.log(`Pixberry ERP running on http://localhost:${port}`);
     console.log(`  Staff / admin:   http://localhost:${port}/admin`);
     console.log(`  Kitchen display: http://localhost:${port}/kds`);
+    console.log(`  Signal display:  http://localhost:${port}/signal   (staff app: /signal/app)`);
     if (pw) console.log(`\n  First run — created user "admin" with password: ${pw}\n  (set ADMIN_PASSWORD to choose it; change it after signing in)\n`);
   });
   startJobs();

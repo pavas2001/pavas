@@ -265,8 +265,9 @@ r.get('/service-requests', A.requirePerm('orders.create', 'tables.manage'), (req
   res.json(all(`SELECT sr.*, t.label AS table_label FROM service_requests sr LEFT JOIN tables t ON t.id = sr.table_id WHERE sr.branch_id = ? AND (sr.status = 'open' OR sr.created_at >= datetime('now','-2 hours')) ORDER BY sr.status = 'open' DESC, sr.id DESC`, req.branchId));
 });
 r.post('/service-requests/:id/resolve', A.requirePerm('orders.create', 'tables.manage'), (req, res) => {
-  run(`UPDATE service_requests SET status = 'done', resolved_at = ? WHERE id = ?`, U.nowIso(), req.params.id);
+  require('../signal').resolve(Number(req.params.id), req.user, req.branchId);
   U.emit('table.updated', { branch_id: req.branchId });
+  U.emit('signal.updated', { branch_id: req.branchId });
   res.json({ ok: true });
 });
 

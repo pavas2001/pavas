@@ -12,6 +12,7 @@ const PERMISSIONS = {
   'orders.refund': 'Issue refunds',
   'payments.take': 'Take payments',
   'kds.view': 'Kitchen display',
+  'signal.respond': 'Answer table requests (Signal display & staff app)',
   'tables.manage': 'Manage tables & floor',
   'reservations.manage': 'Reservations & waitlist',
   'menu.manage': 'Menu management',
@@ -23,11 +24,12 @@ const PERMISSIONS = {
   'settings.manage': 'Business settings & backups',
   'audit.view': 'Audit log',
 };
-const ROLES = ['admin', 'manager', 'cashier', 'kitchen'];
+const ROLES = ['admin', 'manager', 'cashier', 'waiter', 'kitchen'];
 const DEFAULT_ROLE_PERMS = {
   admin: Object.keys(PERMISSIONS),
   manager: Object.keys(PERMISSIONS).filter(p => !['settings.manage'].includes(p)),
-  cashier: ['orders.create', 'orders.edit', 'payments.take', 'kds.view', 'tables.manage', 'reservations.manage', 'customers.manage'],
+  cashier: ['orders.create', 'orders.edit', 'payments.take', 'kds.view', 'tables.manage', 'reservations.manage', 'customers.manage', 'signal.respond'],
+  waiter: ['orders.create', 'signal.respond'],
   kitchen: ['kds.view'],
 };
 
