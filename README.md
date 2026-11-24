@@ -87,6 +87,8 @@ npm run cube -- <key> heartbeat 15 off   # report 15% battery, lifted off the co
 
 Set `PIXBERRY_URL` if the server isn't on `http://localhost:3000`.
 
+**Firmware:** the prototype cube firmware (ESP32-C3, accelerometer, LED ring) is in [`firmware/signal-cube`](firmware/signal-cube/README.md), with parts, wiring, flashing and setup steps.
+
 ## What's included
 
 | Area | Features |
@@ -156,6 +158,8 @@ public/
   kds/            kitchen display
   signal/         Signal counter display (index.html) and staff phone app (app.html)
 scripts/          seed, backup, restore, cube-sim (Signal Cube simulator)
+firmware/
+  signal-cube/    ESP32-C3 firmware for the Signal Cube (PlatformIO)
 test/             API + geofence tests (npm test)
 ```
 
