@@ -15,10 +15,22 @@ async function start() {
   $('#app').hidden = false;
   $('#hint').hidden = false;
   addEventListener('pointerdown', () => { unlockAudio(); $('#hint').hidden = true; }, { once: true });
+  keepAwake();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) keepAwake(); });
   connectEvents(type => { if (['signal.updated', 'table.updated', 'order.created', 'order.updated'].includes(type)) load(); }, ok => { S.live = ok; drawStats(); });
   setInterval(tick, 1000);
   setInterval(load, 30000); // safety refresh
   await load();
+}
+
+// Keep the counter screen on (Android app plugin, or the browser's Screen Wake Lock)
+let wakeLock = null;
+async function keepAwake() {
+  try {
+    const K = window.Capacitor?.Plugins?.KeepAwake;
+    if (K) { await K.keepAwake(); return; }
+    if ('wakeLock' in navigator && !wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); }
+  } catch { /* not allowed right now; tried again when the page is shown */ }
 }
 
 let loading = false, again = false;
@@ -63,8 +75,10 @@ function render() {
   $('#lang').textContent = (S.localLang || b.settings.language) === 'ml' ? 'English' : 'മലയാളം';
   $('#chime').textContent = chimeOn() ? l.chime_on : l.chime_off;
   $('#chime').setAttribute('aria-pressed', String(chimeOn()));
-  $('#back').textContent = l.back_office;
-  $('#back').hidden = !can('reports.view') && !can('tables.manage');
+  const dedicated = store.get('pb.device.mode') === 'display';
+  $('#back').textContent = dedicated ? l.staff_app : l.back_office;
+  $('#back').href = dedicated ? '#' : '/admin';
+  $('#back').hidden = !dedicated && !can('reports.view') && !can('tables.manage');
   $('#evening').hidden = !b.settings.evening_mode;
   $('#evening').textContent = l.evening;
   $('#hint').textContent = l.sound_hint;
@@ -155,6 +169,7 @@ document.addEventListener('click', async e => {
     catch (err) { toast(err.message, 'bad'); act.disabled = false; load(); }
     return;
   }
+  if (e.target.closest('#back') && store.get('pb.device.mode') === 'display') { e.preventDefault(); store.del('pb.device.mode'); location.href = '/signal/app'; return; }
   if (e.target.closest('#lang')) {
     const next = (S.localLang || S.board.settings.language) === 'ml' ? 'en' : 'ml';
     if (S.board.me.can_manage) { S.localLang = null; store.del('pb.signal.lang'); await api('PUT', '/signal/settings', { language: next }).catch(err => toast(err.message, 'bad')); load(); }

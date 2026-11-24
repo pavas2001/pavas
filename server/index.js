@@ -19,6 +19,8 @@ function createApp() {
     next();
   });
   app.use(express.json({ limit: '2mb' }));
+  // Health check for hosting platforms (checks the database is reachable)
+  app.get('/healthz', (_req, res) => { get('SELECT 1 AS ok'); res.json({ ok: true }); });
 
   // ---------- Public (customer) API ----------
   app.use('/api/public', require('./routes/public').router);

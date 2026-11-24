@@ -13,7 +13,7 @@ export const T = {
     chime_on: 'Chime on', chime_off: 'Chime off', evening: 'Evening mode', battery: 'Battery', offline: 'Offline', off_coaster: 'Off coaster',
     low_battery: 'Low battery', ok: 'OK', no_cubes: 'No cubes paired yet. Pair them from the staff app (Cubes tab).', total: 'Requests today', late_n: 'Late',
     fastest: 'Fastest', by_type: 'By request', by_staff: 'Answered by', nobody: 'Nobody has signed in on duty yet.', not_assigned: 'No table',
-    via_qr: 'QR', via_cube: 'Cube', via_staff: 'Staff', back_office: 'Back office', sound_hint: 'Tap anywhere to turn on sound',
+    via_qr: 'QR', via_cube: 'Cube', via_staff: 'Staff', back_office: 'Back office', staff_app: 'Staff app', sound_hint: 'Tap anywhere to turn on sound',
   },
   ml: {
     waiter: 'സർവീസ്', bill: 'ബിൽ', water: 'വെള്ളം', order: 'ഓർഡർ ചെയ്യാൻ', togo: 'പാഴ്സൽ', other: 'സഹായം',
@@ -23,7 +23,7 @@ export const T = {
     chime_on: 'ശബ്ദം ഓൺ', chime_off: 'ശബ്ദം ഓഫ്', evening: 'സന്ധ്യ മോഡ്', battery: 'ബാറ്ററി', offline: 'ഓഫ്‌ലൈൻ', off_coaster: 'കോസ്റ്ററിൽ ഇല്ല',
     low_battery: 'ബാറ്ററി കുറവ്', ok: 'ശരി', no_cubes: 'ഇതുവരെ ക്യൂബുകൾ ജോടിയാക്കിയിട്ടില്ല.', total: 'ഇന്നത്തെ അഭ്യർത്ഥനകൾ', late_n: 'വൈകിയവ',
     fastest: 'ഏറ്റവും വേഗം', by_type: 'തരം അനുസരിച്ച്', by_staff: 'മറുപടി നൽകിയവർ', nobody: 'ആരും ഡ്യൂട്ടിയിൽ കയറിയിട്ടില്ല.', not_assigned: 'ടേബിൾ ഇല്ല',
-    via_qr: 'QR', via_cube: 'ക്യൂബ്', via_staff: 'സ്റ്റാഫ്', back_office: 'ബാക്ക് ഓഫീസ്', sound_hint: 'ശബ്ദം ഓണാക്കാൻ എവിടെയെങ്കിലും തൊടുക',
+    via_qr: 'QR', via_cube: 'ക്യൂബ്', via_staff: 'സ്റ്റാഫ്', back_office: 'ബാക്ക് ഓഫീസ്', staff_app: 'സ്റ്റാഫ് ആപ്പ്', sound_hint: 'ശബ്ദം ഓണാക്കാൻ എവിടെയെങ്കിലും തൊടുക',
   },
 };
 

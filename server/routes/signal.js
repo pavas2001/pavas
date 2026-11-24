@@ -57,6 +57,18 @@ r.put('/signal/me', RESPOND, (req, res) => {
   res.json(me(req));
 });
 
+// Phone alerts (Web Push for the installed web app, FCM for the store app)
+const Push = require('../push');
+r.get('/signal/push/key', A.requireUser, (req, res) => res.json({ publicKey: Push.vapid().publicKey }));
+r.post('/signal/push/subscribe', RESPOND, (req, res) => {
+  const b = req.body || {};
+  res.json(Push.subscribe(req.user.id, b.kind, b.kind === 'fcm' ? b.token : b.subscription));
+});
+r.post('/signal/push/unsubscribe', A.requireUser, (req, res) => res.json({ removed: Push.unsubscribe(req.user.id, req.body?.endpoint) }));
+r.post('/signal/push/test', RESPOND, async (req, res) => {
+  res.json(await Push.sendToUsers([req.user.id], { title: 'Pixberry Signal', body: 'Alerts are working on this phone.', tag: 'test' }));
+});
+
 // Display settings: evening (candle) mode, counter chime, display language, escalation timings
 r.put('/signal/settings', MANAGE, (req, res) => {
   const cur = U.getSetting('signal'), b = req.body || {};

@@ -4,6 +4,7 @@ const crypto = require('node:crypto');
 const { all, get, run, insert, tx } = require('./db');
 const U = require('./util');
 const O = require('./orders');
+const Push = require('./push');
 
 // Request types. 'waiter' is shown to people as "Service".
 const TYPES = ['waiter', 'bill', 'water', 'order', 'togo', 'other'];
@@ -37,6 +38,7 @@ function createRequest({ branchId, table, type, source = 'qr', deviceId = null, 
     if (existing) return { id: existing.id, already: true };
     const id = insert('service_requests', { branch_id: branchId, table_id: table.id, order_id: active?.id ?? null, type, source, device_id: deviceId, note: String(note || '').slice(0, 200) });
     U.notify({ branch_id: branchId, audience: 'staff', type: `request_${type}`, message: `${table.label} ${WHAT[type]}${note ? `: ${String(note).slice(0, 80)}` : ''}`, ref: `table:${table.id}` });
+    Push.notifyRequest({ branchId, tableLabel: table.label, sectionId: table.section_id ?? null, label: LABELS[type], requestId: id });
     return { id, already: false };
   });
 }
@@ -154,7 +156,7 @@ function escalate() {
   const cfg = U.getSetting('signal');
   const now = Date.now();
   let changed = 0;
-  for (const r of all(`SELECT sr.id, sr.branch_id, sr.type, sr.created_at, sr.escalation, t.label FROM service_requests sr LEFT JOIN tables t ON t.id = sr.table_id
+  for (const r of all(`SELECT sr.id, sr.branch_id, sr.type, sr.created_at, sr.escalation, t.label, t.section_id FROM service_requests sr LEFT JOIN tables t ON t.id = sr.table_id
                        WHERE sr.status = 'open' AND sr.claimed_by IS NULL AND sr.escalation < 2`)) {
     const age = (now - Date.parse(r.created_at)) / 1000;
     const level = age >= cfg.manager_after_s ? 2 : age >= cfg.escalate_after_s ? 1 : 0;
@@ -163,6 +165,7 @@ function escalate() {
     const mins = Math.floor(age / 60);
     if (level >= 1 && r.escalation < 1) U.notify({ branch_id: r.branch_id, audience: 'staff', type: 'request_late', message: `Late: ${r.label || 'A table'} · ${LABELS[r.type]} waiting ${mins} min`, ref: `request:${r.id}` });
     if (level >= 2) U.notify({ branch_id: r.branch_id, audience: 'manager', type: 'request_late', message: `${r.label || 'A table'} has waited ${mins} min for ${LABELS[r.type].toLowerCase()} and nobody has answered`, ref: `request:${r.id}` });
+    Push.notifyRequest({ branchId: r.branch_id, tableLabel: r.label || 'A table', sectionId: r.section_id, label: LABELS[r.type], requestId: r.id, level, minutes: mins });
     U.emit('signal.updated', { branch_id: r.branch_id });
     changed++;
   }

@@ -1,0 +1,68 @@
+# Builds the Pixberry Signal Android app (.apk to install directly, and .aab for Google Play).
+# Run it from GitHub: Actions › "Android app" › Run workflow, and enter your Pixberry address.
+#
+# Repository settings used (Settings › Secrets and variables › Actions):
+#   Variable PIXBERRY_URL            default address, e.g. https://pos.mycafe.in
+#   Secret   GOOGLE_SERVICES_JSON    google-services.json from Firebase (needed for lock-screen alerts)
+#   Secrets  ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+#            (optional) sign a release build for Google Play; without them you get a debug build only
+name: Android app
+
+on:
+  workflow_dispatch:
+    inputs:
+      pixberry_url:
+        description: Your Pixberry address (https://…). Leave blank to use the PIXBERRY_URL variable.
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    env:
+      PIXBERRY_URL: ${{ inputs.pixberry_url || vars.PIXBERRY_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - name: Firebase config (lock-screen alerts)
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json; echo "Firebase config added"; else echo "::warning::GOOGLE_SERVICES_JSON is not set: the app works, but lock-screen alerts are off in this build."; fi
+      - run: npm run configure
+      - run: npx cap sync android
+      - name: Debug build (.apk)
+        working-directory: mobile/android
+        run: ./gradlew --no-daemon assembleDebug
+      - name: Release build (.aab for Google Play)
+        working-directory: mobile/android
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ORG_GRADLE_PROJECT_signingStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKeyAlias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ORG_GRADLE_PROJECT_signingKeyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then echo "No signing key set: skipping the release build."; exit 0; fi
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          ./gradlew --no-daemon bundleRelease -PsigningStoreFile="$RUNNER_TEMP/release.jks"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pixberry-signal-android
+          path: |
+            mobile/android/app/build/outputs/apk/debug/*.apk
+            mobile/android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error

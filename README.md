@@ -87,6 +87,10 @@ npm run cube -- <key> heartbeat 15 off   # report 15% battery, lifted off the co
 
 Set `PIXBERRY_URL` if the server isn't on `http://localhost:3000`.
 
+**Lock-screen alerts:** in the staff app, go to **Shift › Lock-screen alerts › Turn on**. Waiters on duty get an alert for new requests in their zone, even when the phone is locked. Late requests alert the whole floor, and very late ones alert managers. The web app uses Web Push and needs https. On iPhone, open the app from the Home Screen first. The Android/iPhone store app uses Firebase. Set `FCM_SERVICE_ACCOUNT` on the server (see [`mobile/README.md`](mobile/README.md)).
+
+**Store app and counter screens:** [`mobile/`](mobile/README.md) builds the Android/iPhone app. On GitHub, *Actions › Android app* produces an installable `.apk`. Any phone or tablet with the app can be switched to the counter display. For a Windows PC at the counter, use [`scripts/windows/signal-display.cmd`](scripts/windows/signal-display.cmd).
+
 **Firmware:** the prototype cube firmware (ESP32-C3, accelerometer, LED ring) is in [`firmware/signal-cube`](firmware/signal-cube/README.md), with parts, wiring, flashing and setup steps.
 
 ## What's included
@@ -123,6 +127,17 @@ Content-Type: application/json
 
 This matches most WhatsApp Business API partners, SMS gateways and email relays, directly or through a small adapter. Until a channel is connected, messages appear as `skipped` under **Notifications & messages › Outgoing messages**.
 
+## Putting it online
+
+Phones, cubes and the location check all need an **https** address. Any host that runs a Docker container with a persistent disk works. The repository includes a `Dockerfile` and a `railway.json` for [Railway](https://railway.com):
+
+1. Create a project from this GitHub repository. Railway builds the `Dockerfile`.
+2. Add a **volume** mounted at `/data`. The database and backups live there, so without it data is lost on every deploy.
+3. Set the variables `ADMIN_PASSWORD`, and `FCM_SERVICE_ACCOUNT` if you use the store app.
+4. Add a domain (for example `pos.mycafe.in`). Put the same address in **Settings › Café profile › Public URL**.
+
+The health check is at `/healthz`. Run one copy (replica) only, because the database is a single SQLite file.
+
 ## Configuration (environment variables)
 
 | Variable | Default | |
@@ -133,6 +148,8 @@ This matches most WhatsApp Business API partners, SMS gateways and email relays,
 | `ADMIN_PASSWORD` | random, printed | Password for the first `admin` user |
 | `TRUST_PROXY` | off | Set to `1` when running behind a reverse proxy (correct client IPs for rate limits) |
 | `CAFE_LAT`, `CAFE_LNG` | Bengaluru | Café location used by `npm run seed` |
+| `FCM_SERVICE_ACCOUNT` | — | Firebase service account JSON (or base64), for lock-screen alerts in the store app |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | generated | Web Push keys. Generated and stored in the database if not set. |
 
 ## Backups
 
@@ -151,6 +168,7 @@ server/
   orders.js       order engine: pricing, tax/service/discounts, stock deduction, payments, loyalty
   crud.js         generic CRUD routes with field whitelists
   signal.js       Signal requests: cubes, claiming, escalation, floor/health/stats
+  push.js         lock-screen alerts (Web Push + Firebase)
   routes/         public (QR), system, menu, pos, floor, inventory, people, reports, signal (+ device API)
 public/
   order/          customer ordering page (mobile)
@@ -160,6 +178,8 @@ public/
 scripts/          seed, backup, restore, cube-sim (Signal Cube simulator)
 firmware/
   signal-cube/    ESP32-C3 firmware for the Signal Cube (PlatformIO)
+mobile/           Android/iPhone store app (Capacitor)
+Dockerfile, railway.json   hosting
 test/             API + geofence tests (npm test)
 ```
 

@@ -14,6 +14,9 @@ const TABS = [
 ];
 const svg = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 
+// This device can be set up as the counter display instead (Shift › Use as counter display)
+if (store.get('pb.device.mode') === 'display') location.replace('/signal');
+
 async function start() {
   if (!session.token) return renderLogin($('#login'), 'Signal · staff app', start);
   try { await loadMe(); } catch { return renderLogin($('#login'), 'Signal · staff app', start); }
@@ -24,6 +27,64 @@ async function start() {
   setInterval(load, 30000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
   await load();
+  if (store.get('pb.sapp.push')) enablePush({ quiet: true });  // keep this phone's alerts linked to whoever is signed in
+}
+
+// ---------- Lock-screen alerts ----------
+const native = () => !!window.Capacitor?.isNativePlatform?.();
+const pushState = () => {
+  if (native()) return store.get('pb.sapp.push') ? 'on' : 'off';
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return 'unsupported';
+  if (Notification.permission === 'denied') return 'blocked';
+  return store.get('pb.sapp.push') && Notification.permission === 'granted' ? 'on' : 'off';
+};
+function b64ToBytes(b64) {
+  const s = atob((b64 + '='.repeat((4 - b64.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(s, c => c.charCodeAt(0));
+}
+async function enablePush({ quiet = false } = {}) {
+  try {
+    if (native()) {
+      const P = window.Capacitor.Plugins.PushNotifications;
+      if (!P) throw new Error('This app version has no push support.');
+      let perm = await P.checkPermissions();
+      if (perm.receive !== 'granted' && !quiet) perm = await P.requestPermissions();
+      if (perm.receive !== 'granted') throw new Error('Notifications are turned off for Pixberry Signal in phone settings.');
+      await P.createChannel?.({ id: 'requests', name: 'Table requests', importance: 5, sound: 'default', vibration: true }).catch(() => {});
+      await new Promise((resolve, reject) => {
+        P.addListener('registration', async t => { try { await api('POST', '/signal/push/subscribe', { kind: 'fcm', token: t.value }); resolve(); } catch (e) { reject(e); } });
+        P.addListener('registrationError', e => reject(new Error(e.error || 'Could not register for alerts')));
+        P.addListener('pushNotificationActionPerformed', () => { S.tab = 'req'; load(); });
+        P.register();
+      });
+    } else {
+      if (pushState() === 'unsupported') throw new Error(/iPhone|iPad/.test(navigator.userAgent) ? 'On iPhone, first add this app to your Home Screen (Share › Add to Home Screen), then open it from there.' : 'This browser can\'t show alerts. Use Chrome on Android.');
+      const perm = quiet ? Notification.permission : await Notification.requestPermission();
+      if (perm !== 'granted') throw new Error(perm === 'denied' ? 'Alerts are blocked. Allow notifications for this site in the browser settings.' : 'Alerts were not allowed.');
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        const { publicKey } = await api('GET', '/signal/push/key');
+        sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(publicKey) });
+      }
+      await api('POST', '/signal/push/subscribe', { kind: 'web', subscription: sub.toJSON() });
+    }
+    store.set('pb.sapp.push', true);
+    if (!quiet) toast('Lock-screen alerts are on for this phone', 'ok');
+  } catch (e) { if (!quiet) toast(e.message, 'bad'); }
+  if (S.board) render();
+}
+async function disablePush() {
+  try {
+    if (!native()) {
+      const reg = await navigator.serviceWorker?.getRegistration();
+      const sub = await reg?.pushManager.getSubscription();
+      if (sub) { await api('POST', '/signal/push/unsubscribe', { endpoint: sub.endpoint }).catch(() => {}); await sub.unsubscribe(); }
+    }
+  } catch { /* ignore */ }
+  store.del('pb.sapp.push');
+  render();
 }
 
 const me = () => S.board?.me || {};
@@ -55,7 +116,7 @@ function alertNew(r) {
   const sub = `${r.section_name || 'Floor'} · just now`;
   if (S.sound) chimeFor(r.type);
   try { navigator.vibrate?.([120, 60, 120]); } catch { /* ignore */ }
-  if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+  if (document.hidden && pushState() !== 'on' && 'Notification' in window && Notification.permission === 'granted') {
     navigator.serviceWorker?.getRegistration().then(reg => reg ? reg.showNotification(title, { body: sub, tag: `req-${r.id}`, icon: '/assets/icon.svg' }) : new Notification(title, { body: sub }))
       .catch(() => { try { new Notification(title, { body: sub }); } catch { /* ignore */ } });
   }
@@ -166,13 +227,16 @@ function insTab() {
 
 function shiftTab() {
   const m = me(), st = S.board.settings;
-  const notif = 'Notification' in window ? Notification.permission : 'unsupported';
+  const ps = pushState();
+  const pushText = { on: 'On. This phone gets alerts even when it is locked.', off: 'Get alerts for your zone even when the phone is locked', blocked: 'Blocked. Allow notifications for this site in the browser settings.', unsupported: /iPhone|iPad/.test(navigator.userAgent) ? 'Add this app to your Home Screen first, then open it from there.' : 'Not supported in this browser. Use Chrome.' }[ps];
   let h = `<div class="card">
     <div class="item"><span><b>On duty</b><small>Get alerts for your zone</small></span><button class="sw" role="switch" aria-label="On duty" aria-checked="${m.on_duty}" data-a="duty"></button></div>
     <div class="item"><span><b>My zone</b><small>Tables you look after</small></span><span class="chips"><button data-a="zone" data-v="" aria-pressed="${!m.section_id}">All</button>${S.board.sections.map(s => `<button data-a="zone" data-v="${s.id}" aria-pressed="${m.section_id === s.id}">${esc(s.name)}</button>`).join('')}</span></div>
     <div class="item"><span><b>Sound on this phone</b><small>A different chime for each request</small></span><button class="sw" role="switch" aria-label="Sound" aria-checked="${S.sound}" data-a="sound"></button></div>
-    <div class="item"><span><b>Phone notifications</b><small>${notif === 'granted' ? 'On. You get alerts when the app is in the background.' : notif === 'denied' ? 'Blocked in browser settings.' : notif === 'unsupported' ? 'Not supported in this browser.' : 'Alerts when the app is in the background'}</small></span>${notif === 'default' ? '<button class="act" data-a="notif">Allow</button>' : ''}</div>
-  </div>`;
+    <div class="item"><span><b>Lock-screen alerts</b><small>${pushText}</small></span>${ps === 'on' ? '<button class="sw" role="switch" aria-label="Lock-screen alerts" aria-checked="true" data-a="pushoff"></button>' : ps === 'off' ? '<button class="act" data-a="pushon">Turn on</button>' : ''}</div>
+    ${ps === 'on' ? '<div class="item"><span><b>Test alert</b><small>Lock the phone, then check it arrives</small></span><button class="act" data-a="pushtest">Send test</button></div>' : ''}
+  </div>
+  <div class="sect">This device</div><div class="card"><div class="item"><span><b>Use as counter display</b><small>For a tablet or screen at the counter. Switch back from the display's top bar.</small></span><button class="act" data-a="displaymode">Switch</button></div></div>`;
   if (m.can_manage) h += `<div class="sect">Counter display · manager</div><div class="card">
     <div class="item"><span><b>Evening mode</b><small>Resting cubes flicker like a candle</small></span><button class="sw" role="switch" aria-label="Evening mode" aria-checked="${!!st.evening_mode}" data-a="set" data-k="evening_mode"></button></div>
     <div class="item"><span><b>Counter chime</b><small>Sound on the counter display</small></span><button class="sw" role="switch" aria-label="Counter chime" aria-checked="${!!st.chime}" data-a="set" data-k="chime"></button></div>
@@ -196,7 +260,10 @@ document.addEventListener('click', async e => {
   else if (a === 'duty') await act(() => api('PUT', '/signal/me', { on_duty: !me().on_duty }));
   else if (a === 'zone') await act(() => api('PUT', '/signal/me', { section_id: b.dataset.v ? Number(b.dataset.v) : null }));
   else if (a === 'sound') { S.sound = !S.sound; store.set('pb.sapp.sound', S.sound); if (S.sound) chimeFor('water'); render(); }
-  else if (a === 'notif') { await Notification.requestPermission().catch(() => {}); if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {}); render(); }
+  else if (a === 'pushon') await enablePush();
+  else if (a === 'pushoff') await disablePush();
+  else if (a === 'pushtest') { try { const r = await api('POST', '/signal/push/test'); toast(r.sent ? 'Test alert sent' : 'No phone is linked yet. Turn alerts on again.', r.sent ? 'ok' : 'bad'); } catch (err) { toast(err.message, 'bad'); } }
+  else if (a === 'displaymode') { store.set('pb.device.mode', 'display'); location.href = '/signal'; }
   else if (a === 'set') await act(() => api('PUT', '/signal/settings', { [b.dataset.k]: !S.board.settings[b.dataset.k] }));
   else if (a === 'lang') await act(() => api('PUT', '/signal/settings', { language: b.dataset.v }));
   else if (a === 'table') { S.sheet = Number(b.dataset.id); drawSheet(); }

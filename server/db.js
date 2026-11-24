@@ -222,6 +222,13 @@ CREATE TABLE IF NOT EXISTS signal_staff (
   on_duty INTEGER NOT NULL DEFAULT 0, updated_at TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_sr_branch_status ON service_requests(branch_id, status);
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL,                        -- web (Web Push) | fcm (store app)
+  endpoint TEXT NOT NULL UNIQUE,             -- Web Push endpoint URL or FCM device token
+  data TEXT NOT NULL DEFAULT '{}', last_ok TEXT,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+);
 `);
 function addColumn(table, col, def) {
   if (!db.prepare(`PRAGMA table_info(${table})`).all().some(c => c.name === col)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${def}`);

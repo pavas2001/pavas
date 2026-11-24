@@ -172,6 +172,36 @@ test('shift and display settings', async () => {
   assert.equal(hb.body.light, 'candle');
 });
 
+test('lock-screen alert subscriptions and who gets alerted', async () => {
+  const key = await call('GET', '/api/signal/push/key', null, { as: 'cashier' });
+  assert.equal(key.status, 200);
+  assert.ok(key.body.publicKey.length > 40);
+  // the private key never leaves the server
+  const settings = await call('GET', '/api/settings');
+  assert.ok(!JSON.stringify(settings.body).includes('push_vapid'));
+
+  const bad = await call('POST', '/api/signal/push/subscribe', { kind: 'web', subscription: { endpoint: 'http://insecure.example' } }, { as: 'cashier' });
+  assert.equal(bad.status, 400);
+  const sub = { endpoint: 'https://push.example.invalid/abc', keys: { p256dh: 'BPk', auth: 'xyz' } };
+  assert.equal((await call('POST', '/api/signal/push/subscribe', { kind: 'web', subscription: sub }, { as: 'cashier' })).status, 200);
+  assert.equal((await call('POST', '/api/signal/push/subscribe', { kind: 'web', subscription: sub }, { as: 'cashier' })).status, 200); // same phone again: no duplicate
+  assert.equal(get(`SELECT COUNT(*) AS n FROM push_subscriptions WHERE endpoint = ?`, sub.endpoint).n, 1);
+  assert.equal((await call('POST', '/api/signal/push/subscribe', { kind: 'fcm', token: 'short' }, { as: 'cashier' })).status, 400);
+  const un = await call('POST', '/api/signal/push/unsubscribe', { endpoint: sub.endpoint }, { as: 'cashier' });
+  assert.equal(un.body.removed, 1);
+
+  // Priya (waiter) is on duty in Patio from the previous test
+  const Push = require('../server/push');
+  const B = get('SELECT id FROM branches LIMIT 1').id;
+  const patio = get(`SELECT id FROM sections WHERE name = 'Patio'`).id, indoor = get(`SELECT id FROM sections WHERE name = 'Indoor'`).id;
+  const priya = get(`SELECT id FROM users WHERE username = 'waiter'`).id, admin = get(`SELECT id FROM users WHERE username = 'admin'`).id;
+  assert.ok(Push.recipientsFor(B, patio, 0).includes(priya));
+  assert.ok(!Push.recipientsFor(B, indoor, 0).includes(priya));   // other zone: not alerted
+  assert.ok(Push.recipientsFor(B, indoor, 1).includes(priya));    // late: whole floor
+  assert.ok(Push.recipientsFor(B, indoor, 2).includes(admin));    // very late: managers
+  assert.ok(!Push.recipientsFor(B, indoor, 2).includes(priya));
+});
+
 test('removing a cube stops its key working', async () => {
   assert.equal((await call('DELETE', `/api/signal/devices/${deviceId}`)).status, 200);
   assert.equal((await call('POST', '/api/device/heartbeat', {}, { key })).status, 401);
