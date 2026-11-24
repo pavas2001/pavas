@@ -74,6 +74,7 @@ The light then follows what staff do. The cube asks the server every 8 s while w
 | Warm flicker | Evening mode, nothing requested |
 | Spinning | Sending |
 | Three red blinks | The send failed. It retries automatically: 1 s, 2 s, 4 s and so on, up to 1 min. If the key was removed or the cube has no table, it stops and blinks again on the next try. |
+| Off, then asleep | The café is closed. The light turns off and, once the server says it will stay closed for at least 5 more minutes, the cube goes into deep sleep until roughly then (capped at 6 hours, so it still checks in if the schedule changes). Flipping a face while closed is simply ignored — nobody is there to answer. |
 
 Network calls run in their own task, so the light keeps animating even when Wi-Fi is slow.
 
@@ -83,8 +84,12 @@ Network calls run in their own task, so the light keeps animating even when Wi-F
 - For `https://` servers, the cube checks the server certificate against the root in `include/ca_cert.h`. That is **ISRG Root X1** (Let's Encrypt), which most hosts use. If your host uses another certificate authority, replace it with that root certificate.
 - `http://` is allowed only for a server on the café's own network. The key is sent unencrypted there, so prefer https.
 
+## Closed hours
+
+Opening hours are set once, on the server, under **Settings › Opening hours** — nothing to configure on the cube. Every response from the server (`face`, `cancel`, `heartbeat`) includes how long the café will stay closed for, and the cube acts on that on its own.
+
 ## Known limits of this prototype
 
-- **Battery life isn't optimised yet.** The cube stays awake with Wi-Fi in modem sleep, and polls while a request is open. Expect days, not weeks, off the coaster. The next step is deep sleep, woken by the accelerometer's motion interrupt, with Wi-Fi off between calls.
+- **Battery life during opening hours isn't optimised yet.** While the café is open, the cube stays awake with Wi-Fi in modem sleep and polls while a request is open. Overnight sleep (above) already saves most of the idle time; the next step is to also use the accelerometer's motion interrupt to doze between flips during the day, with Wi-Fi off between calls.
 - **Setup is over USB serial.** A phone setup screen (Bluetooth or a temporary Wi-Fi hotspot) would make pairing easier in a café.
 - **No haptic motor or light sensor yet.** The light pins and timings are in `config.h` ready for them.

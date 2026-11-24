@@ -137,17 +137,29 @@ function stats(branchId) {
   };
 }
 
+// How long a cube may deep-sleep in one stretch once the café is closed. Short enough that it still
+// notices sooner if the hours or a holiday are changed; long enough to make a real difference to battery.
+const CLOSED_SLEEP_CAP_S = 6 * 3600;
+
 /** What a cube should show: its own request and whether someone is on the way. */
 function cubeState(device) {
   const cfg = U.getSetting('signal');
-  const r = device.table_id ? get(`SELECT id, type, claimed_by, created_at FROM service_requests WHERE table_id = ? AND status = 'open' ORDER BY created_at LIMIT 1`, device.table_id) : null;
   const t = device.table_id ? get('SELECT label FROM tables WHERE id = ?', device.table_id) : null;
+  const open = U.isOpenNow().open;
+  if (!open) {
+    // The café is shut: nobody is there to answer, so don't light up or wait on a request — and tell
+    // the cube it can go to sleep instead of checking back every few seconds.
+    const wait = U.secondsUntilNextOpen();
+    return { table: t?.label || null, request: null, light: 'off', evening_mode: false, open: false, sleep_for_s: Math.min(wait ?? CLOSED_SLEEP_CAP_S, CLOSED_SLEEP_CAP_S) };
+  }
+  const r = device.table_id ? get(`SELECT id, type, claimed_by, created_at FROM service_requests WHERE table_id = ? AND status = 'open' ORDER BY created_at LIMIT 1`, device.table_id) : null;
   return {
     table: t?.label || null,
     request: r ? { id: r.id, type: r.type, acknowledged: !!r.claimed_by, late: !r.claimed_by && secondsSince(r.created_at) >= cfg.escalate_after_s } : null,
     // light: off | request (steady) | acknowledged (slow breathe) | late (pulse) | candle (evening flicker)
     light: r ? (r.claimed_by ? 'acknowledged' : secondsSince(r.created_at) >= cfg.escalate_after_s ? 'late' : 'request') : (cfg.evening_mode ? 'candle' : 'off'),
     evening_mode: !!cfg.evening_mode,
+    open: true,
   };
 }
 

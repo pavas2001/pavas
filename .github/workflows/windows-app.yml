@@ -1,0 +1,84 @@
+# Builds the Pixberry Windows installer (PixberrySetup.exe): a private copy of Node.js, the app,
+# and NSSM, packaged by Inno Setup into one .exe that installs Pixberry as a Windows service.
+# Run it from GitHub: Actions › "Windows installer" › Run workflow.
+#
+# Nothing to configure for a basic build — it has no required repository secrets or variables.
+# The resulting installer asks for the admin password and the auto-shutdown choice itself, when
+# someone runs it on the café PC.
+name: Windows installer
+
+on:
+  workflow_dispatch:
+    inputs:
+      node_version:
+        description: Node.js version to bundle (must satisfy package.json's "engines" field)
+        required: false
+        default: "22.13.0"
+      nssm_version:
+        description: NSSM (service wrapper) version to bundle
+        required: false
+        default: "2.24"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      NODE_VERSION: ${{ inputs.node_version || '22.13.0' }}
+      NSSM_VERSION: ${{ inputs.nssm_version || '2.24' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Use a recent Node just to run `npm ci` on this runner — NOT the copy that ships to cafés.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install production dependencies
+        run: npm ci --omit=dev
+
+      - name: Assemble the app payload
+        shell: pwsh
+        run: |
+          $payload = "windows\payload\app"
+          New-Item -ItemType Directory -Force -Path $payload | Out-Null
+          Copy-Item server, public, scripts, node_modules, package.json -Destination $payload -Recurse
+
+      - name: Download the Node.js runtime that ships inside the installer
+        shell: pwsh
+        run: |
+          $url = "https://nodejs.org/dist/v$env:NODE_VERSION/node-v$env:NODE_VERSION-win-x64.zip"
+          Write-Host "Downloading $url"
+          Invoke-WebRequest -Uri $url -OutFile node.zip
+          Expand-Archive node.zip -DestinationPath node-extract
+          $dir = "windows\payload\node"
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          Copy-Item "node-extract\node-v$env:NODE_VERSION-win-x64\node.exe" -Destination $dir
+
+      - name: Download NSSM (runs the app as a Windows service)
+        shell: pwsh
+        run: |
+          $url = "https://nssm.cc/release/nssm-$env:NSSM_VERSION.zip"
+          Write-Host "Downloading $url"
+          Invoke-WebRequest -Uri $url -OutFile nssm.zip
+          Expand-Archive nssm.zip -DestinationPath nssm-extract
+          $dir = "windows\payload\nssm"
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          Copy-Item "nssm-extract\nssm-$env:NSSM_VERSION\win64\nssm.exe" -Destination $dir
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Compile the installer
+        shell: pwsh
+        run: |
+          $version = "${{ github.run_number }}.0.0"
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=$version" windows\installer.iss
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pixberry-windows-installer
+          path: windows/dist/PixberrySetup.exe
+          if-no-files-found: error

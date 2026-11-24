@@ -148,6 +148,19 @@ void test_timing() {
   TEST_ASSERT_EQUAL_UINT32(60000, backoffMs(20));
 }
 
+void test_closed_cafe_sleep() {
+  // too short a closure to bother sleeping
+  TEST_ASSERT_EQUAL_UINT32(0, sleepSeconds(60, 300, 21600));
+  TEST_ASSERT_EQUAL_UINT32(0, sleepSeconds(0, 300, 21600));
+  // a closure shorter than the cap sleeps for exactly that long
+  TEST_ASSERT_EQUAL_UINT32(5 * 3600, sleepSeconds(5 * 3600, 300, 6 * 3600));
+  // never sleeps longer than the cap, even over a long holiday
+  TEST_ASSERT_EQUAL_UINT32(6 * 3600, sleepSeconds(3 * 86400, 300, 6 * 3600));
+  // right at the threshold
+  TEST_ASSERT_EQUAL_UINT32(300, sleepSeconds(300, 300, 21600));
+  TEST_ASSERT_EQUAL_UINT32(0, sleepSeconds(299, 300, 21600));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_up_axis);
@@ -161,5 +174,6 @@ int main() {
   RUN_TEST(test_light_patterns);
   RUN_TEST(test_battery_curve);
   RUN_TEST(test_timing);
+  RUN_TEST(test_closed_cafe_sleep);
   return UNITY_END();
 }

@@ -162,6 +162,7 @@ device.post('/face', (req, res) => {
   if (!(face in S.FACES)) throw U.httpError(400, `Face must be one of: ${Object.keys(S.FACES).join(', ')}`);
   seen(d, req.body);
   run('UPDATE signal_devices SET face = ? WHERE id = ?', face, d.id);
+  if (!U.isOpenNow().open) return res.json(S.cubeState(d)); // nobody's there to answer; don't raise a request or wake the counter
   const type = S.FACES[face];
   if (!d.table_id) throw U.httpError(409, 'This cube is not assigned to a table yet');
   const table = get('SELECT * FROM tables WHERE id = ?', d.table_id);

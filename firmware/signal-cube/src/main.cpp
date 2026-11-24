@@ -20,6 +20,7 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <Wire.h>
+#include <esp_sleep.h>
 
 #include "ca_cert.h"
 #include "config.h"
@@ -159,6 +160,21 @@ void applyState(JsonDocument& out) {
   portEXIT_CRITICAL(&mux);
 }
 
+// If the server says the café is closed, go to deep sleep instead of polling every few seconds.
+// On wake the chip reboots from setup(), reconnects, and asks again — so a shorter closure than
+// expected, a changed schedule or a holiday that ends early all sort themselves out on the next wake.
+void maybeDeepSleep(JsonDocument& out) {
+  const uint32_t sleepS = sleepSeconds(out["sleep_for_s"] | 0, MIN_DEEP_SLEEP_S, 6 * 3600);
+  if (sleepS == 0) return;
+  Serial.printf("Cafe closed. Deep sleep for %lu s.\n", (unsigned long)sleepS);
+  Serial.flush();
+  ring.clear();
+  ring.show();
+  WiFi.disconnect(true);
+  esp_sleep_enable_timer_wakeup((uint64_t)sleepS * 1000000ULL);
+  esp_deep_sleep_start();  // does not return; the chip restarts from setup() on wake
+}
+
 void networkTask(void*) {
   uint32_t nextPoll = 0;
   int failures = 0;
@@ -191,6 +207,7 @@ void networkTask(void*) {
       sh.wantPoll = false;
       portEXIT_CRITICAL(&mux);
       applyState(out);
+      maybeDeepSleep(out);  // doesn't return if it decides to sleep
       nextPoll = millis() + pollIntervalMs(modeFromServer(out["light"] | "off"));
     } else if (code == 401 || code == 400 || code == 409) {
       // Not retryable: unknown/removed key, bad face, or cube not assigned to a table

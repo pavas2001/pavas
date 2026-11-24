@@ -138,6 +138,8 @@ Phones, cubes and the location check all need an **https** address. Any host tha
 
 The health check is at `/healthz`. Run one copy (replica) only, because the database is a single SQLite file.
 
+**Or run it on the café's own PC instead of the cloud.** [`windows/`](windows/README.md) has a Windows installer that sets Pixberry up as a service there (auto-starts on boot, restarts on its own if it crashes), with an extra backup and an optional automatic shutdown once the café's opening hours say it's closed — so the PC doesn't need to stay on, or even be left running, outside those hours. A Cloudflare Tunnel from that same PC gives it the https address phones and cubes need, with no router port-forwarding and no monthly server bill. Build the installer from GitHub: **Actions › Windows installer**.
+
 ## Configuration (environment variables)
 
 | Variable | Default | |
@@ -179,7 +181,8 @@ scripts/          seed, backup, restore, cube-sim (Signal Cube simulator)
 firmware/
   signal-cube/    ESP32-C3 firmware for the Signal Cube (PlatformIO)
 mobile/           Android/iPhone store app (Capacitor)
-Dockerfile, railway.json   hosting
+windows/          Windows installer: runs Pixberry as a service on the café's own PC
+Dockerfile, railway.json   cloud hosting
 test/             API + geofence tests (npm test)
 ```
 

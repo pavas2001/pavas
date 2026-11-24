@@ -119,6 +119,33 @@ function isOpenNow() {
   if (!inWindow(lp.time, h.open, h.close)) return { open: false, reason: `We're open ${h.open}–${h.close} today.` };
   return { open: true };
 }
+// The day's hours, or null if closed all day (a holiday, a day marked closed, or no hours set).
+function hoursWindow(dateStr, dow) {
+  if ((getSetting('holidays') || []).includes(dateStr)) return null;
+  const h = (getSetting('hours') || {})[dow];
+  return h && !h.closed && h.open && h.close ? { open: h.open, close: h.close } : null;
+}
+/**
+ * Seconds from `fromDate` until the café is next open (0 if open right now). Looks up to 8 days
+ * ahead over the weekly schedule and holidays. Returns null if no opening hours are configured at
+ * all in that window (so the caller can fall back to its own default instead of waiting forever).
+ * Used to tell battery-powered devices (Signal Cubes) how long they can safely sleep for.
+ */
+function secondsUntilNextOpen(fromDate = new Date(), tz = getSetting('timezone')) {
+  const off = tzOffsetMinutes(tz, fromDate);
+  const utcMs = (dateStr, timeStr) => Date.UTC(+dateStr.slice(0, 4), +dateStr.slice(5, 7) - 1, +dateStr.slice(8, 10), +timeStr.slice(0, 2), +timeStr.slice(3, 5)) - off * 60000;
+  const now = fromDate.getTime();
+  for (let d = 0; d <= 8; d++) {
+    const lp = localParts(new Date(now + d * 86400000), tz);
+    const w = hoursWindow(lp.date, lp.dow);
+    if (!w) continue;
+    const openMs = utcMs(lp.date, w.open);
+    let closeMs = utcMs(lp.date, w.close);
+    if (w.close <= w.open) closeMs += 86400000; // the window runs past midnight
+    if (now < closeMs) return now >= openMs ? 0 : Math.round((openMs - now) / 1000);
+  }
+  return null; // no opening hours configured in the next 8 days
+}
 function itemScheduledNow(it, lp = localParts()) {
   if (it.available_days) {
     const days = String(it.available_days).split(',').map(s => s.trim()).filter(Boolean).map(Number);
@@ -206,7 +233,7 @@ function httpError(status, message, extra) { const e = new Error(message); e.sta
 module.exports = {
   DEFAULT_SETTINGS, getSetting, setSetting, allSettings,
   distanceMeters, checkGeofence, formatDistance,
-  nowIso, localParts, tzOffsetMinutes, inWindow, isOpenNow, itemScheduledNow,
+  nowIso, localParts, tzOffsetMinutes, inWindow, isOpenNow, hoursWindow, secondsUntilNextOpen, itemScheduledNow,
   token, bus, emit, audit, notify, queueMessage, flushOutbox, messageCustomer,
   money, toPaise, httpError,
 };

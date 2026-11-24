@@ -216,4 +216,13 @@ inline uint32_t backoffMs(int attempt) {
   return ms > 60000 ? 60000 : ms;
 }
 
+// How long to deep-sleep when the server says the café is closed for `serverSeconds`.
+// Below `minS` it isn't worth the reboot-on-wake cost, so this returns 0 (stay awake, normal
+// heartbeat). Clamped to `capS` so the cube still checks back occasionally even on a long closure
+// or a misconfigured server.
+inline uint32_t sleepSeconds(uint32_t serverSeconds, uint32_t minS, uint32_t capS) {
+  if (serverSeconds < minS) return 0;
+  return serverSeconds > capS ? capS : serverSeconds;
+}
+
 }  // namespace cube

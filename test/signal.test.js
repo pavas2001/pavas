@@ -17,6 +17,7 @@ execFileSync(process.execPath, ['--disable-warning=ExperimentalWarning', path.jo
 const { createApp } = require('../server/index');
 const { get, run } = require('../server/db');
 const S = require('../server/signal');
+const U = require('../server/util');
 
 let base, server;
 const tokens = {};
@@ -200,6 +201,59 @@ test('lock-screen alert subscriptions and who gets alerted', async () => {
   assert.ok(Push.recipientsFor(B, indoor, 1).includes(priya));    // late: whole floor
   assert.ok(Push.recipientsFor(B, indoor, 2).includes(admin));    // very late: managers
   assert.ok(!Push.recipientsFor(B, indoor, 2).includes(priya));
+});
+
+test('secondsUntilNextOpen finds the next opening across hours and holidays', () => {
+  const origHours = U.getSetting('hours'), origHolidays = U.getSetting('holidays');
+  try {
+    // open all day, every day → open right now, zero wait
+    const allOpen = {}; for (let d = 0; d < 7; d++) allOpen[d] = { open: '00:00', close: '23:59', closed: false };
+    U.setSetting('hours', allOpen); U.setSetting('holidays', []);
+    assert.equal(U.isOpenNow().open, true);
+    assert.equal(U.secondsUntilNextOpen(), 0);
+
+    // closed every day of the week → nothing found in the lookahead window
+    const allClosed = {}; for (let d = 0; d < 7; d++) allClosed[d] = { open: '09:00', close: '18:00', closed: true };
+    U.setSetting('hours', allClosed);
+    assert.equal(U.isOpenNow().open, false);
+    assert.equal(U.secondsUntilNextOpen(), null);
+
+    // today is a holiday, but normal hours resume on another day within the week
+    const today = U.localParts().date;
+    const normal = {}; for (let d = 0; d < 7; d++) normal[d] = { open: '09:00', close: '18:00', closed: false };
+    U.setSetting('hours', normal); U.setSetting('holidays', [today]);
+    assert.equal(U.isOpenNow().open, false);
+    const wait = U.secondsUntilNextOpen();
+    assert.ok(wait > 0 && wait < 2 * 86400, `expected a wait under 2 days, got ${wait}`);
+  } finally {
+    U.setSetting('hours', origHours); U.setSetting('holidays', origHolidays);
+  }
+});
+
+test('a flipped cube makes no request while the café is closed, and is told it can sleep', async () => {
+  const origHours = U.getSetting('hours');
+  try {
+    const closedAll = {}; for (let d = 0; d < 7; d++) closedAll[d] = { open: '09:00', close: '18:00', closed: true };
+    U.setSetting('hours', closedAll);
+    const before = get(`SELECT COUNT(*) AS n FROM service_requests WHERE device_id = ? AND status = 'open'`, deviceId).n;
+
+    const face = await call('POST', '/api/device/face', { face: 'water' }, { key });
+    assert.equal(face.status, 200);
+    assert.equal(face.body.light, 'off');
+    assert.equal(face.body.request, null);
+    assert.ok(face.body.sleep_for_s > 0 && face.body.sleep_for_s <= 6 * 3600);
+    assert.equal(get(`SELECT COUNT(*) AS n FROM service_requests WHERE device_id = ? AND status = 'open'`, deviceId).n, before, 'no request was created while closed');
+
+    const hb = await call('POST', '/api/device/heartbeat', {}, { key });
+    assert.equal(hb.body.light, 'off');
+    assert.ok(hb.body.sleep_for_s > 0);
+
+    // the counter display agrees nothing is open
+    const board = await call('GET', '/api/signal/board');
+    assert.equal(board.body.requests.filter(r => r.table_label === 'T2').length, 0);
+  } finally {
+    U.setSetting('hours', origHours);
+  }
 });
 
 test('removing a cube stops its key working', async () => {

@@ -24,6 +24,12 @@
 #define FACE_SETTLE_MS 1000     // the face must stay on top this long before it is sent
 #define BATTERY_DIVIDER 2.0f    // battery volts = ADC volts × this
 
+// ---- Closed-café sleep ----
+// The server tells the cube how long the café will stay closed for (POST responses include
+// "sleep_for_s"). Below this many seconds it's not worth the deep-sleep/reboot cost, so the cube
+// just keeps its normal slow heartbeat instead.
+#define MIN_DEEP_SLEEP_S 300
+
 // Which face is on top for each accelerometer axis pointing up.
 // Order: +X, -X, +Y, -Y, +Z, -Z. Set it on the device instead with the `map <face>` serial command.
 static const cube::Face DEFAULT_AXIS_MAP[6] = {

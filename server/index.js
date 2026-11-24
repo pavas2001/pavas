@@ -163,17 +163,23 @@ function bootstrap() {
   return pw;
 }
 
-if (require.main === module) {
+// Bootstraps the database, starts listening, and starts the background jobs. Used both by the
+// `if (require.main === module)` guard below (running `node server/index.js` directly) and by
+// scripts/run-with-config.js (the Windows service entry point, which sets up its config first).
+function start() {
   const pw = bootstrap();
   const port = Number(process.env.PORT) || 3000;
-  createApp().listen(port, () => {
+  const server = createApp().listen(port, () => {
     console.log(`Pixberry ERP running on http://localhost:${port}`);
     console.log(`  Staff / admin:   http://localhost:${port}/admin`);
     console.log(`  Kitchen display: http://localhost:${port}/kds`);
     console.log(`  Signal display:  http://localhost:${port}/signal   (staff app: /signal/app)`);
     if (pw) console.log(`\n  First run — created user "admin" with password: ${pw}\n  (set ADMIN_PASSWORD to choose it; change it after signing in)\n`);
   });
-  startJobs();
+  const timers = startJobs();
+  return { server, timers };
 }
 
-module.exports = { createApp, bootstrap, startJobs, receiptHtml };
+if (require.main === module) start();
+
+module.exports = { createApp, bootstrap, startJobs, start, receiptHtml };
