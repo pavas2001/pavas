@@ -14,6 +14,8 @@ const lat = Number(process.env.CAFE_LAT || 12.9716), lng = Number(process.env.CA
 const demoPw = process.env.DEMO_PASSWORD || 'pixberry123';
 
 let adminPw = null;
+const cubeKeys = [];
+const { hashKey } = require('../server/signal');
 tx(() => {
   adminPw = bootstrap();
   setSetting('cafe', { ...getSetting('cafe'), name: 'Pixberry Café', address: '12 MG Road, Bengaluru 560001', phone: '+91 98765 43210', email: 'hello@pixberry.example', gstin: '29ABCDE1234F1Z5' });
@@ -21,13 +23,21 @@ tx(() => {
   run('UPDATE branches SET name = ?, address = ?, lat = ?, lng = ?, radius_m = 150, geofence_enabled = 1 WHERE id = ?', 'MG Road', '12 MG Road, Bengaluru', lat, lng, branch.id);
   const B = branch.id;
 
-  const users = [['Asha Manager', 'manager', 'manager'], ['Ravi Cashier', 'cashier', 'cashier'], ['Chef Meera', 'kitchen', 'kitchen']];
+  const users = [['Asha Manager', 'manager', 'manager'], ['Ravi Cashier', 'cashier', 'cashier'], ['Priya Waiter', 'waiter', 'waiter'], ['Chef Meera', 'kitchen', 'kitchen']];
   for (const [name, username, role] of users) if (!get('SELECT id FROM users WHERE username = ?', username)) insert('users', { name, username, role, password_hash: hashPassword(demoPw), branch_id: B });
 
   const st = Object.fromEntries(['Hot kitchen', 'Drinks bar', 'Desserts'].map((n, i) => [n, insert('stations', { name: n, sort: i })]));
   const sec = Object.fromEntries(['Indoor', 'Patio'].map((n, i) => [n, insert('sections', { branch_id: B, name: n, sort: i })]));
   for (let i = 1; i <= 8; i++) insert('tables', { branch_id: B, section_id: i <= 6 ? sec.Indoor : sec.Patio, label: `T${i}`, seats: i % 3 === 0 ? 6 : 4, qr_token: token(12), sort: i });
   insert('tables', { branch_id: B, label: 'Counter', kind: 'counter', seats: 0, qr_token: token(12), sort: 99 });
+  // Signal Cubes: one per table, with example battery readings (keys are printed below for the cube simulator)
+  const now = new Date().toISOString();
+  for (let i = 1; i <= 8; i++) {
+    const key = `pbd_${token(24)}`;
+    const tid = get('SELECT id FROM tables WHERE branch_id = ? AND label = ?', B, `T${i}`).id;
+    insert('signal_devices', { branch_id: B, kind: 'cube', table_id: tid, key_hash: hashKey(key), battery: [82, 74, 91, 18, 66, 88, 79, 57][i - 1], on_coaster: 1, rssi: -55 - i, firmware: '1.0.0', last_seen: now });
+    cubeKeys.push([`T${i}`, key]);
+  }
 
   const cat = {};
   [['Breakfast', 'Served 7–11:30', '07:00', '11:30'], ['Coffee', 'Single-origin espresso & brews'], ['Cold drinks'], ['Sandwiches & bowls'], ['Desserts']]
@@ -85,5 +95,7 @@ tx(() => {
 
 console.log('Seeded demo café "Pixberry Café".');
 console.log(`  Café location set to ${lat}, ${lng} with a 150 m ordering radius (override with CAFE_LAT / CAFE_LNG).`);
-console.log(`  Demo staff logins (password "${demoPw}"): manager, cashier, kitchen`);
+console.log(`  Demo staff logins (password "${demoPw}"): manager, cashier, waiter, kitchen`);
+console.log('  Demo Signal Cube keys (try: npm run cube -- <key> water):');
+for (const [t, k] of cubeKeys) console.log(`    ${t}  ${k}`);
 console.log(adminPw ? `  Admin login: "admin" / "${adminPw}" — change it after signing in.` : '  Admin login: "admin" — password from first start (or ADMIN_PASSWORD).');

@@ -6,6 +6,7 @@ const express = require('express');
 const { all, get, run, insert, tx } = require('../db');
 const { getSetting, checkGeofence, isOpenNow, localParts, itemScheduledNow, httpError, emit, notify } = require('../util');
 const O = require('../orders');
+const S = require('../signal');
 
 const r = express.Router();
 
@@ -175,26 +176,17 @@ r.get('/orders/:key', (req, res) => {
   res.json(publicOrder(O.getOrder(o.id)));
 });
 
-// Call waiter / ask for the bill / water
+// Call waiter / ask for the bill / water (same requests as the Signal Cube)
 r.post('/t/:token/requests', limit(6, 60e3), (req, res) => {
   const { target, branch } = loadTable(req.params.token);
   const body = req.body || {};
   requireInside(branch, body.location);
-  const type = ['waiter', 'bill', 'water', 'other'].includes(body.type) ? body.type : 'waiter';
-  const recent = get(`SELECT id FROM service_requests WHERE table_id = ? AND type = ? AND status = 'open'`, target.id, type);
-  const active = O.activeOrderForTable(target.id);
-  if (type === 'bill') {
-    if (!active) throw httpError(400, 'There is no open order on this table yet.');
-    run(`UPDATE orders SET status = 'billed' WHERE id = ?`, active.id);
-    run(`UPDATE tables SET status = 'bill_requested' WHERE id = ?`, target.id);
-  }
-  if (!recent) {
-    insert('service_requests', { branch_id: branch.id, table_id: target.id, order_id: active?.id ?? null, type, note: String(body.note || '').slice(0, 200) });
-    const what = { waiter: 'is calling a waiter', bill: 'asked for the bill', water: 'asked for water', other: 'needs help' }[type];
-    notify({ branch_id: branch.id, audience: 'staff', type: `request_${type}`, message: `${target.label} ${what}${body.note ? `: ${String(body.note).slice(0, 80)}` : ''}`, ref: `table:${target.id}` });
-  }
+  const type = S.TYPES.includes(body.type) ? body.type : 'waiter';
+  if (type === 'bill' && !O.activeOrderForTable(target.id)) throw httpError(400, 'There is no open order on this table yet.');
+  const out = S.createRequest({ branchId: branch.id, table: target, type, source: 'qr', note: body.note });
   emit('table.updated', { table_id: target.id, branch_id: branch.id });
-  res.json({ ok: true, already_requested: !!recent });
+  emit('signal.updated', { branch_id: branch.id });
+  res.json({ ok: true, already_requested: out.already });
 });
 
 r.post('/orders/:key/feedback', limit(5, 60e3), (req, res) => {

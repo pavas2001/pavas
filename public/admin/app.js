@@ -9,6 +9,8 @@ const NAV = [
   ['orders', '📋', 'Orders & bills', ['orders.create', 'payments.take', 'reports.view']],
   ['tables', '🪑', 'Tables & floor', ['tables.manage', 'orders.create']],
   ['kds', '🍳', 'Kitchen display', ['kds.view'], '/kds'],
+  ['signal', '🔔', 'Signal counter display', ['signal.respond', 'orders.create', 'tables.manage'], '/signal'],
+  ['signal-app', '📱', 'Signal staff app', ['signal.respond', 'orders.create', 'tables.manage'], '/signal/app'],
   ['reservations', '📅', 'Reservations & queue', ['reservations.manage']],
   ['Manage'],
   ['menu', '📖', 'Menu', ['menu.manage']],

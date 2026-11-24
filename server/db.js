@@ -204,6 +204,42 @@ CREATE TABLE IF NOT EXISTS outbox (
 `;
 db.exec(SCHEMA);
 
+// ---------- Pixberry Signal (table cubes + counter display) ----------
+db.exec(`
+CREATE TABLE IF NOT EXISTS signal_devices (
+  id INTEGER PRIMARY KEY, branch_id INTEGER NOT NULL REFERENCES branches(id),
+  kind TEXT NOT NULL DEFAULT 'cube',        -- cube | hub
+  name TEXT DEFAULT '', table_id INTEGER REFERENCES tables(id) ON DELETE SET NULL,
+  key_hash TEXT NOT NULL UNIQUE,             -- sha256 of the device key; the key itself is shown once at pairing
+  face TEXT NOT NULL DEFAULT 'rest',         -- face currently on top
+  battery INTEGER, on_coaster INTEGER, rssi INTEGER, firmware TEXT DEFAULT '',
+  last_seen TEXT, active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+);
+CREATE TABLE IF NOT EXISTS signal_staff (
+  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  section_id INTEGER REFERENCES sections(id) ON DELETE SET NULL,
+  on_duty INTEGER NOT NULL DEFAULT 0, updated_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_sr_branch_status ON service_requests(branch_id, status);
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL,                        -- web (Web Push) | fcm (store app)
+  endpoint TEXT NOT NULL UNIQUE,             -- Web Push endpoint URL or FCM device token
+  data TEXT NOT NULL DEFAULT '{}', last_ok TEXT,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+);
+`);
+function addColumn(table, col, def) {
+  if (!db.prepare(`PRAGMA table_info(${table})`).all().some(c => c.name === col)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${def}`);
+}
+addColumn('service_requests', 'source', "TEXT NOT NULL DEFAULT 'qr'"); // qr | cube | staff
+addColumn('service_requests', 'device_id', 'INTEGER');
+addColumn('service_requests', 'claimed_by', 'INTEGER');
+addColumn('service_requests', 'claimed_at', 'TEXT');
+addColumn('service_requests', 'resolved_by', 'INTEGER');
+addColumn('service_requests', 'escalation', 'INTEGER NOT NULL DEFAULT 0'); // 0 none, 1 whole floor, 2 manager
+
 function all(sql, ...p) { return db.prepare(sql).all(...p).map(plain); }
 function get(sql, ...p) { const r = db.prepare(sql).get(...p); return r ? plain(r) : null; }
 function run(sql, ...p) { const r = db.prepare(sql).run(...p); return { changes: Number(r.changes), id: Number(r.lastInsertRowid) }; }

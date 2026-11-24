@@ -1,0 +1,22 @@
+{
+  "name": "pixberry-signal-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pixberry Signal store app (Android/iPhone): the staff app, or the counter display, from your Pixberry server.",
+  "scripts": {
+    "configure": "node scripts/configure.js",
+    "sync": "node scripts/configure.js && cap sync",
+    "android": "node scripts/configure.js && cap sync android && cap open android",
+    "ios": "node scripts/configure.js && cap sync ios && cap open ios"
+  },
+  "dependencies": {
+    "@capacitor-community/keep-awake": "8.0.1",
+    "@capacitor/android": "8.6.0",
+    "@capacitor/core": "8.6.0",
+    "@capacitor/ios": "8.6.0",
+    "@capacitor/push-notifications": "8.1.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.0"
+  }
+}
