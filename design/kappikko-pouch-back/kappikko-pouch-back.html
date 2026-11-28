@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kappikko Pouch Back</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,600,100&family=Montserrat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@1,500&display=block" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#2a2420}
+  body{display:flex;justify-content:center;padding:0}
+  svg{display:block}
+  .brand{font-family:'Fraunces',Georgia,serif;font-weight:600;font-variation-settings:'SOFT' 100}
+  .sans{font-family:'Montserrat','Inter',sans-serif}
+  .script{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:500}
+</style>
+</head>
+<body>
+<!-- Stand-up pouch back panel, approx 130 x 200 mm (10 px = 1 mm) -->
+<svg id="pouch" width="1300" height="2000" viewBox="0 0 1300 2000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b1715"/><stop offset=".55" stop-color="#121010"/><stop offset="1" stop-color="#1a1513"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a77c4f"/><stop offset=".5" stop-color="#e0c193"/><stop offset="1" stop-color="#a77c4f"/>
+    </linearGradient>
+    <linearGradient id="hill1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6b4429"/><stop offset="1" stop-color="#3a2416"/>
+    </linearGradient>
+    <linearGradient id="hill2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3d281a"/><stop offset="1" stop-color="#1e140e"/>
+    </linearGradient>
+    <radialGradient id="bean" cx=".35" cy=".3" r=".8">
+      <stop offset="0" stop-color="#9a5f34"/><stop offset=".6" stop-color="#5b3218"/><stop offset="1" stop-color="#2f180a"/>
+    </radialGradient>
+    <!-- coffee leaf -->
+    <path id="leaf" d="M0 0 C 18 -22, 58 -26, 90 0 C 58 26, 18 22, 0 0 Z M0 0 L 86 0"/>
+    <!-- Kappikko cup emblem -->
+    <g id="emblem">
+      <path d="M -62 -10 A 64 64 0 1 0 54 -34" fill="none" stroke="#f1e6d3" stroke-width="9" stroke-linecap="round"/>
+      <path d="M 54 -34 C 70 -54, 86 -54, 92 -72 C 74 -70, 58 -58, 54 -34 Z" fill="#f1e6d3"/>
+      <path d="M -14 -82 C -30 -100, 2 -110, -14 -130" fill="none" stroke="#f1e6d3" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 6 -86 C -8 -104, 22 -114, 6 -136" fill="none" stroke="#f1e6d3" stroke-width="6" stroke-linecap="round" opacity=".8"/>
+      <g transform="rotate(-20)">
+        <ellipse cx="-10" cy="8" rx="30" ry="44" fill="url(#bean)"/>
+        <path d="M -10 -34 C -24 -6, 4 18, -10 50" fill="none" stroke="#24120a" stroke-width="5" stroke-linecap="round"/>
+      </g>
+      <path d="M 14 30 C 22 4, 40 0, 50 20 C 54 34, 40 48, 22 46 Z" fill="#6d4022"/>
+      <path d="M 18 40 C 26 24, 36 22, 46 32" fill="none" stroke="#8b5a35" stroke-width="3"/>
+    </g>
+  </defs>
+
+  <!-- pouch body -->
+  <rect x="0" y="0" width="1300" height="2000" rx="34" fill="url(#bg)"/>
+  <!-- heat seal edges -->
+  <rect x="14" y="14" width="1272" height="1972" rx="26" fill="none" stroke="#2c2522" stroke-width="2"/>
+  <g stroke="#262020" stroke-width="2">
+    <line x1="0" y1="44" x2="1300" y2="44"/><line x1="0" y1="60" x2="1300" y2="60"/>
+  </g>
+  <!-- tear notches -->
+  <circle cx="0" cy="190" r="10" fill="#2a2420"/><circle cx="1300" cy="190" r="10" fill="#2a2420"/>
+
+  <!-- botanical line art background (top right) -->
+  <g fill="none" stroke="#3a302a" stroke-width="2.2" opacity=".75" transform="translate(150 -40)">
+    <path d="M 1300 300 C 1180 380, 1120 470, 1100 620"/>
+    <use href="#leaf" transform="translate(1180 365) rotate(-150) scale(1.3)"/>
+    <use href="#leaf" transform="translate(1140 430) rotate(-40) scale(1.1)"/>
+    <use href="#leaf" transform="translate(1120 520) rotate(-160) scale(1.2)"/>
+    <use href="#leaf" transform="translate(1106 590) rotate(-20) scale(1)"/>
+    <circle cx="1150" cy="470" r="9"/><circle cx="1166" cy="482" r="9"/><circle cx="1148" cy="492" r="9"/>
+  </g>
+
+  <!-- resealable zipper -->
+  <g>
+    <line x1="30" y1="250" x2="1270" y2="250" stroke="#2f2825" stroke-width="10"/>
+    <line x1="30" y1="262" x2="1270" y2="262" stroke="#0c0a09" stroke-width="3"/>
+    <text x="70" y="238" class="script" font-size="22" fill="#b38a5e" letter-spacing="1">Resealable Zipper</text>
+  </g>
+
+  <!-- OUR COFFEE -->
+  <text x="650" y="330" text-anchor="middle" class="sans" font-weight="700" font-size="28" letter-spacing="6" fill="#e6cfaa">OUR COFFEE</text>
+  <line x1="470" y1="345" x2="560" y2="345" stroke="url(#gold)" stroke-width="2"/>
+  <line x1="740" y1="345" x2="830" y2="345" stroke="url(#gold)" stroke-width="2"/>
+  <g class="sans" font-size="22.5" fill="#d9ccb8" text-anchor="middle">
+    <text x="650" y="392">Kappikko is grown on our own coffee plants in the green hills of</text>
+    <text x="650" y="424">Kerala. Every cherry is handpicked at peak ripeness, sun-dried, and</text>
+    <text x="650" y="456">slow roasted in small batches to bring out a deep aroma and a full,</text>
+    <text x="650" y="488">rich body. Freshly ground and packed to lock in flavour &#8212; nothing</text>
+    <text x="650" y="520">added, nothing taken away. From our own coffee plants to your cup.</text>
+  </g>
+
+  <!-- left column: product type -->
+  <g class="sans" font-size="22" fill="#d9ccb8">
+    <circle cx="96" cy="604" r="13" fill="#f1e6d3"/><circle cx="96" cy="604" r="6" fill="#8b5a35"/>
+    <text x="124" y="612" font-weight="600" fill="#f1e6d3">Coffee Powder</text>
+    <circle cx="96" cy="646" r="13" fill="none" stroke="#9c8a74" stroke-width="2.5"/>
+    <text x="124" y="654">Roasted Coffee Beans</text>
+
+    <text x="82" y="722" font-weight="600" fill="#c9a272" letter-spacing="1.5" font-size="19">INGREDIENTS</text>
+    <text x="250" y="722" font-size="20">&#8211; 100% Pure Coffee</text>
+    <text x="82" y="758" font-weight="600" fill="#c9a272" letter-spacing="1.5" font-size="19">ORIGIN</text>
+    <text x="250" y="758" font-size="20">&#8211; Kerala, India</text>
+  </g>
+
+  <!-- ROAST scale -->
+  <g class="sans">
+    <text x="82" y="840" font-size="19" font-weight="600" fill="#c9a272" letter-spacing="1.5">ROAST</text>
+    <line x1="96" y1="882" x2="560" y2="882" stroke="#f1e6d3" stroke-width="4"/>
+    <g fill="#f1e6d3">
+      <circle cx="96" cy="882" r="11"/><circle cx="212" cy="882" r="11"/>
+      <circle cx="444" cy="882" r="11"/><circle cx="560" cy="882" r="11"/>
+    </g>
+    <!-- selected: medium-dark -->
+    <circle cx="328" cy="882" r="19" fill="#8b5a35" stroke="#f1e6d3" stroke-width="5"/>
+    <g font-size="18" fill="#d9ccb8">
+      <text x="96" y="926" text-anchor="middle">Light</text>
+      <text x="328" y="926" text-anchor="middle" font-weight="700" fill="#f1e6d3">Medium</text>
+      <text x="560" y="926" text-anchor="middle">Dark</text>
+    </g>
+  </g>
+
+  <!-- GRIND SIZE scale -->
+  <g class="sans">
+    <text x="82" y="1000" font-size="19" font-weight="600" fill="#c9a272" letter-spacing="1.5">GRIND SIZE</text>
+    <line x1="96" y1="1042" x2="560" y2="1042" stroke="#f1e6d3" stroke-width="4"/>
+    <g fill="#f1e6d3">
+      <circle cx="96" cy="1042" r="11"/><circle cx="212" cy="1042" r="11"/>
+      <circle cx="328" cy="1042" r="11"/><circle cx="560" cy="1042" r="11"/>
+    </g>
+    <circle cx="444" cy="1042" r="19" fill="#8b5a35" stroke="#f1e6d3" stroke-width="5"/>
+    <g font-size="15.5" fill="#d9ccb8" text-anchor="middle" letter-spacing=".5">
+      <text x="96" y="1086">COARSE</text>
+      <text x="212" y="1086">MED. COARSE</text>
+      <text x="328" y="1086">MEDIUM</text>
+      <text x="444" y="1086" font-weight="700" fill="#f1e6d3">FINE</text>
+      <text x="560" y="1086">EXTRA FINE</text>
+    </g>
+  </g>
+
+  <!-- one-way degassing valve -->
+  <g transform="translate(650 640)">
+    <circle r="56" fill="#0d0b0a" stroke="#2e2724" stroke-width="3"/>
+    <circle r="40" fill="none" stroke="#221d1b" stroke-width="2"/>
+    <path d="M -4 -18 C 8 -8, -10 6, 4 18" stroke="#3b332f" stroke-width="7" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- Nutrition table -->
+  <g class="sans" transform="translate(770 575)">
+    <rect x="0" y="0" width="460" height="420" fill="none" stroke="#cdb89a" stroke-width="2"/>
+    <g stroke="#cdb89a" stroke-width="1.5"><line x1="42" y1="0" x2="42" y2="62"/><line x1="42" y1="98" x2="42" y2="420"/><line x1="292" y1="0" x2="292" y2="62"/><line x1="292" y1="98" x2="292" y2="420"/></g>
+    <line x1="0" y1="62" x2="460" y2="62" stroke="#cdb89a" stroke-width="1.5"/>
+    <line x1="0" y1="98" x2="460" y2="98" stroke="#cdb89a" stroke-width="1.5"/>
+    <g fill="#f1e6d3" font-size="17" font-weight="600" text-anchor="middle">
+      <text x="21" y="38">No</text>
+      <text x="167" y="28">Nutritional</text><text x="167" y="50">Information</text>
+      <text x="376" y="28">Coffee Powder</text><text x="376" y="50">(per 100 g)</text>
+    </g>
+    <text x="230" y="87" text-anchor="middle" font-size="16" fill="#c9a272" letter-spacing="1">APPROX. VALUE PER 100 g</text>
+    <g font-size="17.5" fill="#d9ccb8">
+      <!-- rows: 8 x 40px starting at y=98 -->
+      <g id="rows">
+        <text x="21" y="125" text-anchor="middle">1.</text><text x="56" y="125">Energy</text><text x="306" y="125">___ kcal</text>
+        <text x="21" y="165" text-anchor="middle">2.</text><text x="56" y="165">Total Carbohydrate</text><text x="306" y="165">___ g</text>
+        <text x="21" y="205" text-anchor="middle">3.</text><text x="56" y="205">Protein</text><text x="306" y="205">___ g</text>
+        <text x="21" y="245" text-anchor="middle">4.</text><text x="56" y="245">Total Fat</text><text x="306" y="245">___ g</text>
+        <text x="21" y="285" text-anchor="middle">5.</text><text x="56" y="285">Total Dietary Fibre</text><text x="306" y="285">___ g</text>
+        <text x="21" y="325" text-anchor="middle">6.</text><text x="56" y="325">Total Sugar</text><text x="306" y="325">___ g</text>
+        <text x="21" y="365" text-anchor="middle">7.</text><text x="56" y="365">Moisture</text><text x="306" y="365">___ %</text>
+        <text x="21" y="405" text-anchor="middle">8.</text><text x="56" y="405">Total Ash</text><text x="306" y="405">___ %</text>
+      </g>
+    </g>
+    <g stroke="#cdb89a" stroke-width=".8" opacity=".55">
+      <line x1="0" y1="138" x2="460" y2="138"/><line x1="0" y1="178" x2="460" y2="178"/>
+      <line x1="0" y1="218" x2="460" y2="218"/><line x1="0" y1="258" x2="460" y2="258"/>
+      <line x1="0" y1="298" x2="460" y2="298"/><line x1="0" y1="338" x2="460" y2="338"/>
+      <line x1="0" y1="378" x2="460" y2="378"/>
+    </g>
+  </g>
+
+  <!-- Round brand seal -->
+  <g transform="translate(1060 1150)">
+    <circle r="122" fill="#141110" stroke="url(#gold)" stroke-width="4"/>
+    <circle r="104" fill="none" stroke="#c9a272" stroke-width="1.5"/>
+    <path id="sealTop" d="M -86 0 A 86 86 0 0 1 86 0" fill="none"/>
+    <path id="sealBot" d="M -98 0 A 98 98 0 0 0 98 0" fill="none"/>
+    <text class="sans" font-size="13" font-weight="700" fill="#e0c193" letter-spacing="3"><textPath href="#sealTop" startOffset="50%" text-anchor="middle">PURE · KERALA · COFFEE</textPath></text>
+    <text class="sans" font-size="13" font-weight="600" fill="#e0c193" letter-spacing="4"><textPath href="#sealBot" startOffset="50%" text-anchor="middle">FARM TO CUP</textPath></text>
+    <use href="#emblem" transform="translate(-4 -2) scale(.36)"/>
+    <text y="50" text-anchor="middle" class="brand" font-size="32" fill="#f1e6d3">kappikko</text>
+    <text x="-104" y="6" text-anchor="middle" fill="#c9a272" font-size="12">★</text><text x="104" y="6" text-anchor="middle" fill="#c9a272" font-size="12">★</text>
+  </g>
+
+  <!-- Net qty / batch box -->
+  <g class="sans">
+    <g font-size="20" fill="#d9ccb8" font-weight="500">
+      <text x="82" y="1200">Net Quantity</text>
+      <text x="82" y="1245">Batch No.</text>
+      <text x="82" y="1290">Packed On</text>
+      <text x="82" y="1335">Best Before</text>
+      <text x="82" y="1380">M.R.P. (₹)</text>
+    </g>
+    <g stroke="#9c8a74" stroke-width="1.5">
+      <line x1="226" y1="1194" x2="262" y2="1194"/><line x1="226" y1="1239" x2="262" y2="1239"/>
+      <line x1="226" y1="1284" x2="262" y2="1284"/><line x1="226" y1="1329" x2="262" y2="1329"/>
+      <line x1="226" y1="1374" x2="262" y2="1374"/>
+    </g>
+    <rect x="270" y="1162" width="520" height="252" rx="6" fill="#f7f2ea"/>
+    <g font-family="'JetBrains Mono',monospace" font-size="20" fill="#9a9187">
+      <text x="292" y="1200">100 g</text>
+      <text x="292" y="1245">__________</text>
+      <text x="292" y="1290">__ / __ / __</text>
+      <text x="292" y="1335">8 months from packing</text>
+    </g>
+    <text x="292" y="1400" font-size="15" fill="#6b6259">(Incl. of all taxes)</text>
+    <!-- barcode placeholder -->
+    <g transform="translate(640 1178)">
+      <rect width="132" height="220" fill="#fff"/>
+      <g fill="#1a1a1a">
+        <rect x="10" y="12" width="112" height="3"/><rect x="10" y="19" width="112" height="2"/><rect x="10" y="25" width="112" height="5"/>
+        <rect x="10" y="34" width="112" height="2"/><rect x="10" y="40" width="112" height="4"/><rect x="10" y="48" width="112" height="2"/>
+        <rect x="10" y="54" width="112" height="6"/><rect x="10" y="64" width="112" height="2"/><rect x="10" y="70" width="112" height="3"/>
+        <rect x="10" y="78" width="112" height="2"/><rect x="10" y="84" width="112" height="5"/><rect x="10" y="93" width="112" height="2"/>
+        <rect x="10" y="99" width="112" height="3"/><rect x="10" y="106" width="112" height="6"/><rect x="10" y="116" width="112" height="2"/>
+        <rect x="10" y="122" width="112" height="4"/><rect x="10" y="130" width="112" height="2"/><rect x="10" y="136" width="112" height="5"/>
+        <rect x="10" y="145" width="112" height="2"/><rect x="10" y="151" width="112" height="3"/><rect x="10" y="158" width="112" height="6"/>
+        <rect x="10" y="168" width="112" height="2"/><rect x="10" y="174" width="112" height="4"/><rect x="10" y="182" width="112" height="2"/>
+        <rect x="10" y="188" width="112" height="3"/><rect x="10" y="195" width="112" height="5"/><rect x="10" y="204" width="112" height="3"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- storage / instructions -->
+  <g class="sans" font-size="17.5" fill="#cbbfae" letter-spacing=".4">
+    <text x="82" y="1462">BEST BEFORE 8 MONTHS FROM PACKING DATE.</text>
+    <text x="82" y="1490">STORE IN A COOL, DRY PLACE AWAY FROM SUNLIGHT.</text>
+    <text x="82" y="1518">RESEAL THE ZIPPER TIGHTLY AFTER EVERY USE.</text>
+  </g>
+
+  <!-- manufacturer / contact -->
+  <g class="sans" text-anchor="end">
+    <text x="1218" y="1322" font-size="18" fill="#cbbfae">Packed &amp; Marketed by</text>
+    <text x="1218" y="1352" font-size="21" font-weight="700" fill="#f1e6d3">Kappikko Coffee Powder Shop</text>
+    <text x="1218" y="1380" font-size="18" fill="#cbbfae">Kerala, India</text>
+    <text x="1218" y="1420" font-size="18" fill="#c9a272" font-weight="600">Customer Care</text>
+    <text x="1218" y="1452" font-size="22" font-weight="700" fill="#f1e6d3">+91 62387 62060</text>
+  </g>
+  <!-- phone icon -->
+  <g transform="translate(1008 1445)">
+    <circle r="16" fill="#c9a272"/>
+    <path d="M -6 -8 C -9 -3, -4 6, 4 9 L 7 5 L 3 2 L 1 4 C -2 2, -3 0, -4 -3 L -2 -5 L -4 -9 Z" fill="#141110"/>
+  </g>
+
+  <!-- icon row -->
+  <g transform="translate(0 1545)">
+    <!-- recycle -->
+    <g transform="translate(112 50)" fill="none" stroke="#cbbfae" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M -6 -26 L 6 -26 L 18 -6"/><path d="M 12 -10 L 18 -6 L 22 -13"/>
+      <path d="M 24 6 L 18 18 L -4 18"/><path d="M 2 12 L -4 18 L 2 24"/>
+      <path d="M -20 12 L -26 2 L -14 -18"/><path d="M -20 -18 L -14 -18 L -12 -10"/>
+    </g>
+    <!-- veg mark (FSSAI green dot) -->
+    <g transform="translate(200 50)">
+      <rect x="-24" y="-24" width="48" height="48" fill="#fff" stroke="#1f8a3a" stroke-width="4"/>
+      <circle r="12" fill="#1f8a3a"/>
+    </g>
+    <text x="238" y="44" class="script" font-size="26" fill="#e6cfaa">100% vegetarian</text>
+    <text x="238" y="72" class="sans" font-size="14" fill="#9c8a74" letter-spacing="1">NO ADDED SUGAR · NO PRESERVATIVES</text>
+
+    <!-- fssai -->
+    <text x="660" y="54" text-anchor="middle" class="script" font-size="46" fill="#f1e6d3">fssai</text>
+    <text x="660" y="84" text-anchor="middle" class="sans" font-size="15" fill="#cbbfae">Lic. No: ____________</text>
+
+    <!-- QR placeholder -->
+    <g transform="translate(866 4)">
+      <rect width="92" height="92" fill="#f7f2ea"/>
+      <g fill="#141110">
+        <rect x="8" y="8" width="24" height="24"/><rect x="60" y="8" width="24" height="24"/><rect x="8" y="60" width="24" height="24"/>
+        <rect x="13" y="13" width="14" height="14" fill="#f7f2ea"/><rect x="65" y="13" width="14" height="14" fill="#f7f2ea"/><rect x="13" y="65" width="14" height="14" fill="#f7f2ea"/>
+        <rect x="17" y="17" width="6" height="6"/><rect x="69" y="17" width="6" height="6"/><rect x="17" y="69" width="6" height="6"/>
+        <rect x="40" y="10" width="8" height="8"/><rect x="40" y="26" width="12" height="6"/><rect x="38" y="40" width="8" height="8"/>
+        <rect x="52" y="44" width="10" height="6"/><rect x="66" y="40" width="8" height="12"/><rect x="40" y="58" width="6" height="10"/>
+        <rect x="52" y="62" width="12" height="8"/><rect x="70" y="66" width="10" height="6"/><rect x="58" y="76" width="8" height="8"/>
+        <rect x="74" y="78" width="10" height="6"/><rect x="10" y="40" width="10" height="8"/><rect x="24" y="44" width="8" height="8"/>
+      </g>
+    </g>
+    <!-- instagram -->
+    <g transform="translate(990 22)">
+      <rect width="40" height="40" rx="11" fill="none" stroke="#f1e6d3" stroke-width="3.5"/>
+      <circle cx="20" cy="20" r="9" fill="none" stroke="#f1e6d3" stroke-width="3.5"/>
+      <circle cx="31" cy="9" r="2.6" fill="#f1e6d3"/>
+    </g>
+    <text x="1042" y="50" class="sans" font-size="20" font-weight="600" fill="#f1e6d3">@kappikko_coffee</text>
+    <text x="990" y="88" class="sans" font-size="15" fill="#cbbfae">Scan to follow &amp; order</text>
+  </g>
+
+  <!-- bottom band: Kerala hills -->
+  <clipPath id="pc"><rect width="1300" height="2000" rx="34"/></clipPath>
+  <g clip-path="url(#pc)"><g transform="translate(0 34)">
+    <path d="M 0 1720 C 80 1690, 140 1660, 220 1680 C 300 1700, 340 1640, 430 1650 C 520 1660, 560 1700, 650 1690 C 740 1680, 800 1630, 900 1645 C 990 1658, 1040 1700, 1120 1690 C 1200 1680, 1250 1660, 1300 1670 L 1300 1966 Q 1300 2000 1266 2000 L 34 2000 Q 0 2000 0 1966 Z" fill="url(#hill1)"/>
+    <path d="M 0 1770 C 120 1740, 200 1760, 300 1745 C 420 1725, 480 1775, 600 1770 C 720 1765, 790 1735, 900 1745 C 1020 1756, 1100 1785, 1200 1765 C 1250 1755, 1280 1750, 1300 1752 L 1300 1966 Q 1300 2000 1266 2000 L 34 2000 Q 0 2000 0 1966 Z" fill="url(#hill2)"/>
+    <!-- plantation rows -->
+    <g fill="none" stroke="#5a3a24" stroke-width="2" opacity=".55">
+      <path d="M 60 1790 C 200 1770, 320 1790, 470 1782"/>
+      <path d="M 820 1778 C 960 1772, 1100 1800, 1250 1782"/>
+    </g>
+    <line x1="0" y1="1702" x2="1300" y2="1702" stroke="url(#gold)" stroke-width="0" />
+    <path d="M 0 1720 C 80 1690, 140 1660, 220 1680 C 300 1700, 340 1640, 430 1650 C 520 1660, 560 1700, 650 1690 C 740 1680, 800 1630, 900 1645 C 990 1658, 1040 1700, 1120 1690 C 1200 1680, 1250 1660, 1300 1670" fill="none" stroke="url(#gold)" stroke-width="3"/>
+
+    </g>
+    <text x="650" y="1822" text-anchor="middle" class="sans" font-size="17" font-weight="600" letter-spacing="5" fill="#d8b98c">A PRODUCT OF</text>
+    <text x="650" y="1898" text-anchor="middle" class="brand" font-size="80" fill="#f1e6d3">kappikko</text>
+    <text x="650" y="1934" text-anchor="middle" class="sans" font-size="17" font-weight="600" letter-spacing="7" fill="#e0c193">COFFEE POWDER</text>
+    <text x="650" y="1970" text-anchor="middle" class="script" font-size="22" fill="#d9ccb8">Pure Coffee. Rich Taste. Naturally Yours.</text>
+  </g>
+</svg>
+</body>
+</html>
