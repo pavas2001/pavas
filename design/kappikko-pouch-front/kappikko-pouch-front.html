@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kappikko Pouch Front</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,600,100&family=Montserrat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Great+Vibes&display=block" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#2a2420}
+  body{display:flex;justify-content:center}
+  svg{display:block}
+  .brand{font-family:'Fraunces',Georgia,serif;font-weight:600;font-variation-settings:'SOFT' 100}
+  .sans{font-family:'Montserrat','Inter',sans-serif}
+  .serif{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:600}
+  .script{font-family:'Great Vibes',cursive}
+</style>
+</head>
+<body>
+<!-- Stand-up pouch front panel, approx 130 x 200 mm (10 px = 1 mm) -->
+<svg id="pouch" width="1300" height="2000" viewBox="0 0 1300 2000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b1715"/><stop offset=".55" stop-color="#121010"/><stop offset="1" stop-color="#1a1513"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a77c4f"/><stop offset=".5" stop-color="#e8cc9e"/><stop offset="1" stop-color="#a77c4f"/>
+    </linearGradient>
+    <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5a361f"/><stop offset=".5" stop-color="#7a4b2b"/><stop offset="1" stop-color="#5a361f"/>
+    </linearGradient>
+    <radialGradient id="disc" cx=".5" cy=".38" r=".7">
+      <stop offset="0" stop-color="#7a4b2b"/><stop offset=".65" stop-color="#4a2c19"/><stop offset="1" stop-color="#2a180d"/>
+    </radialGradient>
+    <linearGradient id="hill1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6b4429"/><stop offset="1" stop-color="#3a2416"/>
+    </linearGradient>
+    <linearGradient id="hill2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3d281a"/><stop offset="1" stop-color="#1e140e"/>
+    </linearGradient>
+    <radialGradient id="bean" cx=".35" cy=".3" r=".8">
+      <stop offset="0" stop-color="#a8693b"/><stop offset=".6" stop-color="#5b3218"/><stop offset="1" stop-color="#2f180a"/>
+    </radialGradient>
+    <path id="leaf" d="M0 0 C 18 -22, 58 -26, 90 0 C 58 26, 18 22, 0 0 Z M0 0 L 86 0"/>
+    <g id="emblem">
+      <path d="M -62 -10 A 64 64 0 1 0 54 -34" fill="none" stroke="#f1e6d3" stroke-width="9" stroke-linecap="round"/>
+      <path d="M 54 -34 C 70 -54, 86 -54, 92 -72 C 74 -70, 58 -58, 54 -34 Z" fill="#f1e6d3"/>
+      <path d="M -14 -82 C -30 -100, 2 -110, -14 -130" fill="none" stroke="#f1e6d3" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 6 -86 C -8 -104, 22 -114, 6 -136" fill="none" stroke="#f1e6d3" stroke-width="6" stroke-linecap="round" opacity=".8"/>
+      <g transform="rotate(-20)">
+        <ellipse cx="-10" cy="8" rx="30" ry="44" fill="url(#bean)"/>
+        <path d="M -10 -34 C -24 -6, 4 18, -10 50" fill="none" stroke="#24120a" stroke-width="5" stroke-linecap="round"/>
+      </g>
+      <path d="M 14 30 C 22 4, 40 0, 50 20 C 54 34, 40 48, 22 46 Z" fill="#6d4022"/>
+      <path d="M 18 40 C 26 24, 36 22, 46 32" fill="none" stroke="#8b5a35" stroke-width="3"/>
+    </g>
+    <clipPath id="pc"><rect width="1300" height="2000" rx="34"/></clipPath>
+    <clipPath id="discClip"><circle cx="650" cy="1150" r="356"/></clipPath>
+    <path id="arcBottom" d="M 260 1150 A 390 390 0 0 0 1040 1150" fill="none"/><path id="arcTop" d="M 274 1150 A 376 376 0 0 1 1026 1150" fill="none"/>
+  </defs>
+
+  <g clip-path="url(#pc)">
+  <!-- pouch body -->
+  <rect width="1300" height="2000" fill="url(#bg)"/>
+  <g stroke="#262020" stroke-width="2"><line x1="0" y1="44" x2="1300" y2="44"/><line x1="0" y1="60" x2="1300" y2="60"/></g>
+
+  <!-- botanical line art in corners -->
+  <g fill="none" stroke="#3a302a" stroke-width="2.4" opacity=".8">
+    <path d="M 0 520 C 90 600, 120 700, 110 820"/>
+    <use href="#leaf" transform="translate(40 560) rotate(-30) scale(1.2)"/>
+    <use href="#leaf" transform="translate(90 640) rotate(200) scale(1.1)"/>
+    <use href="#leaf" transform="translate(112 720) rotate(-20) scale(1)"/>
+    <circle cx="70" cy="690" r="9"/><circle cx="86" cy="702" r="9"/><circle cx="68" cy="712" r="9"/>
+    <path d="M 1300 520 C 1210 600, 1180 700, 1190 820"/>
+    <use href="#leaf" transform="translate(1260 560) rotate(210) scale(1.2)"/>
+    <use href="#leaf" transform="translate(1210 640) rotate(-20) scale(1.1)"/>
+    <use href="#leaf" transform="translate(1188 720) rotate(200) scale(1)"/>
+    <circle cx="1230" cy="690" r="9"/><circle cx="1214" cy="702" r="9"/><circle cx="1232" cy="712" r="9"/>
+  </g>
+
+  <!-- vertical brand ribbon from top seal down to logo panel -->
+  <rect x="330" y="0" width="640" height="760" fill="url(#band)"/>
+  <rect x="330" y="0" width="640" height="760" fill="none" stroke="url(#gold)" stroke-width="0"/>
+  <line x1="342" y1="0" x2="342" y2="748" stroke="#c9a272" stroke-width="2" opacity=".7"/>
+  <line x1="958" y1="0" x2="958" y2="748" stroke="#c9a272" stroke-width="2" opacity=".7"/>
+  <!-- ribbon bottom with rounded corners -->
+  <path d="M 330 700 L 330 740 Q 330 780 370 780 L 930 780 Q 970 780 970 740 L 970 700 Z" fill="url(#band)"/>
+  <path d="M 342 700 L 342 736 Q 342 768 374 768 L 926 768 Q 958 768 958 736 L 958 700" fill="none" stroke="#c9a272" stroke-width="2" opacity=".7"/>
+
+  <!-- resealable zipper -->
+  <line x1="30" y1="250" x2="1270" y2="250" stroke="#2f2825" stroke-width="10" opacity=".9"/>
+  <line x1="30" y1="262" x2="1270" y2="262" stroke="#0c0a09" stroke-width="3" opacity=".8"/>
+  <text x="70" y="238" class="serif" font-size="22" fill="#b38a5e">Resealable Zipper</text>
+
+  <!-- logo panel -->
+  <use href="#emblem" transform="translate(650 410) scale(.85)"/>
+  <text x="650" y="606" text-anchor="middle" class="brand" font-size="116" fill="#f6ecdb">kappikko</text>
+  <line x1="420" y1="682" x2="490" y2="682" stroke="url(#gold)" stroke-width="2"/>
+  <line x1="810" y1="682" x2="880" y2="682" stroke="url(#gold)" stroke-width="2"/>
+  <text x="650" y="691" text-anchor="middle" class="sans" font-size="26" font-weight="600" letter-spacing="7" fill="#f1e2c6">COFFEE POWDER</text>
+  <text x="650" y="732" text-anchor="middle" class="sans" font-size="15" font-weight="600" letter-spacing="5" fill="#e0c193">PURE · RICH · NATURAL</text>
+
+  <!-- bottom hills band -->
+  <g>
+    <path d="M 0 1500 C 90 1470, 150 1440, 240 1460 C 330 1480, 420 1500, 650 1500 C 880 1500, 970 1480, 1060 1460 C 1150 1440, 1210 1470, 1300 1500 L 1300 2000 L 0 2000 Z" fill="url(#hill1)"/>
+    <path d="M 0 1640 C 120 1610, 220 1630, 330 1615 C 440 1600, 520 1650, 650 1650 C 780 1650, 860 1600, 970 1615 C 1080 1630, 1180 1610, 1300 1640 L 1300 2000 L 0 2000 Z" fill="url(#hill2)"/>
+    <path d="M 0 1500 C 90 1470, 150 1440, 240 1460 C 330 1480, 420 1500, 650 1500 C 880 1500, 970 1480, 1060 1460 C 1150 1440, 1210 1470, 1300 1500" fill="none" stroke="url(#gold)" stroke-width="3"/>
+  </g>
+  <!-- central medallion -->
+  <circle cx="650" cy="1150" r="412" fill="#141110" stroke="url(#gold)" stroke-width="5"/>
+  <circle cx="650" cy="1150" r="356" fill="url(#disc)"/>
+  <g clip-path="url(#discClip)">
+    <!-- soft sun glow -->
+    <circle cx="650" cy="1210" r="210" fill="#a06a3e" opacity=".22"/>
+    <!-- distant hills -->
+    <path d="M 270 1300 C 360 1250, 420 1220, 500 1250 C 560 1272, 600 1210, 680 1205 C 760 1200, 800 1250, 880 1240 C 950 1232, 1000 1260, 1040 1280 L 1040 1600 L 270 1600 Z" fill="#3b2415"/>
+    <!-- near hill with plantation rows -->
+    <path d="M 260 1360 C 360 1320, 460 1300, 560 1330 C 640 1352, 720 1300, 820 1298 C 920 1296, 990 1330, 1040 1350 L 1040 1600 L 260 1600 Z" fill="#24150c"/>
+    <g fill="none" stroke="#4a2e1a" stroke-width="3" opacity=".9">
+      <path d="M 300 1395 C 420 1365, 520 1380, 640 1390 C 760 1400, 880 1360, 1000 1385"/>
+      <path d="M 290 1435 C 420 1410, 540 1425, 660 1432 C 780 1440, 900 1405, 1010 1428"/>
+      <path d="M 300 1475 C 430 1455, 560 1468, 680 1474 C 800 1480, 900 1450, 1000 1468"/>
+    </g>
+  </g>
+  <circle cx="650" cy="1150" r="356" fill="none" stroke="url(#gold)" stroke-width="3"/>
+
+  <!-- product name -->
+  <text x="610" y="1030" text-anchor="middle" class="script" font-size="140" fill="#f6ecdb">Pure</text>
+  <text x="690" y="1178" text-anchor="middle" class="script" font-size="140" fill="#f6ecdb">Kerala</text>
+  <text x="650" y="1250" text-anchor="middle" class="sans" font-size="22" font-weight="600" letter-spacing="8" fill="#e0c193">FILTER COFFEE</text>
+
+
+  <!-- curved tagline under medallion -->
+  <text class="serif" font-size="30" fill="#f1e2c6" letter-spacing="1"><textPath href="#arcBottom" startOffset="50%" text-anchor="middle">From our own coffee plants to your cup</textPath></text>
+
+  <text class="sans" font-size="17" font-weight="600" fill="#e0c193" letter-spacing="7"><textPath href="#arcTop" startOffset="50%" text-anchor="middle">★  HANDPICKED · SLOW ROASTED · FRESHLY GROUND  ★</textPath></text>
+
+  <!-- left badge: premium quality -->
+  <g transform="translate(150 1590)" text-anchor="middle" class="sans">
+    <text y="0" font-size="20" fill="#e0c193" letter-spacing="4">★★★</text>
+    <text y="34" font-size="21" font-weight="700" fill="#f1e2c6" letter-spacing="3">PREMIUM</text>
+    <text y="62" font-size="21" font-weight="700" fill="#f1e2c6" letter-spacing="3">QUALITY</text>
+  </g>
+  <!-- right badge: 100% natural -->
+  <g transform="translate(1150 1590)" text-anchor="middle" class="sans">
+    <g transform="translate(-4 -12)" fill="none" stroke="#e0c193" stroke-width="3">
+      <path d="M -22 4 C -14 -14, 12 -18, 24 -6 C 12 10, -10 14, -22 4 Z"/><path d="M -22 4 L 18 -6"/>
+    </g>
+    <text y="34" font-size="21" font-weight="700" fill="#f1e2c6" letter-spacing="3">100%</text>
+    <text y="62" font-size="21" font-weight="700" fill="#f1e2c6" letter-spacing="3">NATURAL</text>
+  </g>
+
+  <!-- footer: veg mark, net wt -->
+  <g transform="translate(110 1880)">
+    <rect x="-22" y="-22" width="44" height="44" fill="#fff" stroke="#1f8a3a" stroke-width="4"/>
+    <circle r="11" fill="#1f8a3a"/>
+  </g>
+  <text x="650" y="1800" text-anchor="middle" class="serif" font-size="34" fill="#e8d6b8">Pure Coffee. Rich Taste. Naturally Yours.</text>
+  <text x="650" y="1882" text-anchor="middle" class="sans" font-size="18" font-weight="600" letter-spacing="6" fill="#c9a272">GROWN &amp; ROASTED IN KERALA</text>
+  <g class="sans" text-anchor="end">
+    <text x="1210" y="1872" font-size="16" font-weight="600" letter-spacing="3" fill="#c9a272">NET WT.</text>
+    <text x="1210" y="1906" font-size="30" font-weight="700" fill="#f6ecdb">100 g</text>
+  </g>
+  </g>
+</svg>
+</body>
+</html>
